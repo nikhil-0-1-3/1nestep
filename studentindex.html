@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1NESTEP | Future Ready Students</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --bg: #030014;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --accent: #7c3aed;
+            --accent-glow: rgba(124, 58, 237, 0.6);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --nav-height: 80px;
+        }
+
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: default; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Prevent scrolling when menu is open */
+        body.menu-open { overflow: hidden; }
+
+        /* --- 1. GLOBAL EFFECTS --- */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; opacity: 0.4;
+        }
+
+        .cursor-light {
+            position: fixed; top: 0; left: 0; width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 60%);
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 0;
+            transition: opacity 0.3s ease; mix-blend-mode: screen;
+        }
+
+        .mesh-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+            z-index: -1; opacity: 0.6; pointer-events: none;
+        }
+
+        /* --- Typography --- */
+        h1, h2, h3 { line-height: 1.1; font-weight: 800; letter-spacing: -0.03em; }
+        p { color: var(--text-muted); line-height: 1.7; font-size: 1.05rem; }
+        
+        .gradient-text {
+            background: linear-gradient(to right, #fff, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-size: 200% auto; animation: shine 5s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        section { padding: 80px 8%; position: relative; }
+
+        /* --- Header --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%; z-index: 1000; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        header.scrolled { background: rgba(3, 0, 20, 0.7); backdrop-filter: blur(25px); border-bottom: 1px solid var(--border); }
+        header.hidden { transform: translateY(-100%); }
+
+        .logo { display: flex; align-items: center; text-decoration: none; color: white; z-index: 1002; }
+        .logo img { height: 35px; width: auto; display: block; }
+
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { 
+            color: var(--text-muted); text-decoration: none; font-size: 0.9rem; 
+            transition: 0.3s; cursor: pointer; position: relative;
+        }
+        .nav-links a:hover { color: #fff; }
+        .nav-links a::after {
+            content: ''; position: absolute; width: 0; height: 1px; bottom: -2px; left: 0;
+            background-color: var(--accent); transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after { width: 100%; }
+
+        .header-actions { display:flex; gap:15px; align-items:center; z-index: 1002; }
+
+        /* --- MAGNETIC BUTTON --- */
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 14px 32px; border-radius: 100px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+            text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { 
+            background: var(--accent); 
+            box-shadow: 0 0 50px var(--accent-glow); 
+            border-color: var(--accent); 
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        /* --- USER PROFILE --- */
+        .user-profile {
+            position: relative; cursor: pointer; z-index: 1003;
+            display: none; align-items: center; gap: 10px;
+        }
+        .profile-avatar {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, var(--accent), #4c1d95);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: white; border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 0 15px var(--accent-glow); transition: 0.3s;
+        }
+        .user-profile:hover .profile-avatar { transform: scale(1.05); border-color: white; }
+        
+        .profile-dropdown {
+            position: absolute; top: 60px; right: 0; width: 280px;
+            background: rgba(10, 5, 30, 0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
+            padding: 20px; display: none; flex-direction: column; gap: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8); opacity: 0; transform: translateY(-10px);
+            transition: 0.3s ease;
+        }
+        .user-profile.active .profile-dropdown { display: flex; opacity: 1; transform: translateY(0); }
+        .profile-info h4 { margin: 0; font-size: 1.1rem; color: #fff; }
+        .profile-info span { font-size: 0.8rem; color: var(--text-muted); }
+        .profile-badge {
+            background: rgba(124, 58, 237, 0.15); color: var(--accent);
+            padding: 5px 10px; border-radius: 8px; font-size: 0.75rem;
+            font-weight: 600; display: inline-block; margin-top: 5px; border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+        .logout-btn {
+            margin-top: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444; width: 100%; padding: 10px; border-radius: 10px;
+            cursor: pointer; transition: 0.2s; font-weight: 600;
+        }
+        .logout-btn:hover { background: #ef4444; color: white; }
+
+        /* --- MOBILE MENU (NEW) --- */
+        .mobile-toggle { display: none; background: transparent; border: none; color: white; cursor: pointer; z-index: 1002; padding: 5px; }
+        
+        .mobile-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: rgba(3, 0, 20, 0.98); backdrop-filter: blur(30px);
+            z-index: 1001; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .mobile-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .mobile-nav-links { display: flex; flex-direction: column; gap: 25px; text-align: center; }
+        .mobile-nav-links a { font-size: 1.5rem; font-weight: 700; color: white; text-decoration: none; opacity: 0; transform: translateY(20px); transition: 0.4s ease; }
+        .mobile-nav-links a:hover { color: var(--accent); }
+        
+        /* Staggered Animation for Mobile Links */
+        .mobile-overlay.active .mobile-nav-links a { opacity: 1; transform: translateY(0); }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(2) { transition-delay: 0.1s; }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(3) { transition-delay: 0.2s; }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(4) { transition-delay: 0.3s; }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(5) { transition-delay: 0.4s; }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(6) { transition-delay: 0.5s; }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(7) { transition-delay: 0.6s; }
+        .mobile-overlay.active .mobile-nav-links a:nth-child(8) { transition-delay: 0.7s; }
+        
+        .mobile-close-btn {
+            position: absolute; top: 30px; right: 30px;
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer; transition: 0.3s;
+        }
+        .mobile-close-btn:hover { background: var(--error); border-color: var(--error); transform: rotate(90deg); }
+
+        /* --- 1. HERO --- */
+        .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr; align-items: center; gap: 50px; text-align: center; padding-top: 150px; }
+        @media(min-width: 992px) { .hero { grid-template-columns: 1.2fr 1fr; text-align: left; } }
+
+        .hero h1 { font-size: clamp(3.5rem, 8vw, 6rem); margin-bottom: 25px; letter-spacing: -2px; }
+        .hero-buttons { display: flex; gap: 15px; margin-top: 40px; justify-content: center; }
+        @media(min-width: 992px) { .hero-buttons { justify-content: flex-start; } }
+        
+        /* NEW 3D SPHERE CONTAINER */
+        .hero-3d { 
+            position: relative; 
+            height: 500px; 
+            width: 100%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 10;
+        }
+        /* Glow Behind Sphere */
+        .hero-3d::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
+            filter: blur(40px);
+            z-index: -1;
+            pointer-events: none;
+        }
+        @media (max-width: 767px) {
+            .hero-3d { height: 400px; order: -1; }
+            .mobile-toggle { display: block; } /* Ensure toggle shows on mobile */
+            .nav-links { display: none; } /* Hide default nav on mobile */
+        }
+
+        @media (min-width: 768px) and (max-width: 991px) {
+            .mobile-toggle { display: block; }
+            .nav-links { display: none; }
+        }
+
+        /* --- 2. PHONE --- */
+        #phone-section { height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle at center, #130826 0%, #030014 100%); perspective: 1000px; }
+        .huge-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 15vw; font-weight: 900; white-space: nowrap; color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+            z-index: 1; text-transform: uppercase; letter-spacing: -5px; pointer-events: none;
+        }
+        .phone-mockup {
+            width: 340px; height: 680px; background: #000; border: 8px solid #222; border-radius: 55px;
+            position: relative; z-index: 10; box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 150px rgba(124, 58, 237, 0.2);
+            transform-style: preserve-3d; overflow: hidden;
+        }
+        .phone-screen {
+            width: 100%; height: 100%; background: linear-gradient(180deg, #1e0b36 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; padding: 60px 25px; text-align: center;
+        }
+        .mini-funnel { width: 120px; height: 250px; border-left: 1px dashed rgba(255,255,255,0.15); border-right: 1px dashed rgba(255,255,255,0.15); position: relative; margin: auto; }
+        .dot { position: absolute; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: drop 2.5s infinite linear; }
+        @keyframes drop { 0% { top: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* --- 3. ENROLL BANNER --- */
+        .enroll-section { padding: 60px 5%; display: flex; justify-content: center; }
+        .enroll-banner {
+            width: 100%; max-width: 1200px;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.08), rgba(3, 0, 20, 0.4));
+            border: 1px solid var(--border); border-left: 4px solid var(--accent);
+            border-radius: 30px; padding: 50px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            backdrop-filter: blur(20px); position: relative; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        @media(min-width: 768px) { .enroll-banner { flex-direction: row; justify-content: space-between; text-align: left; padding: 50px 80px; } }
+        .enroll-glow { position: absolute; top: 0; right: 0; width: 400px; height: 100%; background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.15)); filter: blur(60px); pointer-events: none; }
+
+        /* --- 4. FEATURES --- */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; position: relative; margin-top: 60px; }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px; border-radius: 30px; position: relative; z-index: 1; overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+            cursor: pointer;
+        }
+        .feature-card:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.04); }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 25px; color: var(--text-muted); font-family: monospace; }
+        
+        .feature-modal-content {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature-modal-icon {
+            width: 60px; height: 60px; background: rgba(255,255,255,0.1);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; color: var(--accent); box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+        }
+
+        /* --- 5. VIDEO --- */
+        .video-showcase { text-align: center; position: relative; }
+        .video-frame-outer {
+            width: 100%; max-width: 1100px; margin: 60px auto 0; padding: 15px;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
+            border-top: 1px solid rgba(255,255,255,0.2); border-radius: 40px;
+            backdrop-filter: blur(40px); position: relative; transform-origin: center bottom;
+        }
+        .video-frame-inner { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 30px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+        .video-element { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* --- 6. CHECK SECTION --- */
+        .check-section {
+            display: grid; grid-template-columns: 1fr; gap: 0; align-items: center;
+            background: #050210; border-radius: 40px; border: 1px solid var(--border);
+            overflow: hidden; padding: 0; margin-top: 100px;
+        }
+        @media(min-width: 992px) { .check-section { grid-template-columns: 1fr 1.2fr; } }
+        .check-content { padding: 80px 60px; z-index: 2; }
+        .check-visual { position: relative; height: 600px; width: 100%; background: radial-gradient(circle at center, #1a0b3a 0%, #050210 70%); }
+        #particleCanvas { width: 100%; height: 100%; }
+
+        /* --- 7. BARRIERS (Interactive 3D Box) --- */
+        .platform-section { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-top: 100px; }
+        .barrier-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 50px; padding-top: 40px; border-top: 1px solid var(--border); }
+        
+        .stat-item { padding: 25px; border-radius: 20px; transition: 0.3s; border: 1px solid transparent; }
+        .stat-item.interactive-stat { cursor: pointer; }
+        .stat-item.interactive-stat:hover { background: rgba(255,255,255,0.03); transform: translateY(-5px); border-color: rgba(255,255,255,0.1); }
+        .stat-item.active { background: rgba(124, 58, 237, 0.08); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        .stat-number { font-size: 2.2rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 10px; }
+        .stat-label { font-size: 1.1rem; color: #fff; font-weight: 700; }
+        .stat-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+        .stat-hint { font-size: 0.8rem; color: var(--accent); margin-top: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; opacity: 0; transition: 0.3s; }
+        .interactive-stat:hover .stat-hint, .stat-item.active .stat-hint { opacity: 1; }
+
+        /* ISO BOX (Holographic) */
+        .iso-box {
+            position: relative; width: 100%; height: 600px;
+            background: radial-gradient(circle at center, rgba(124, 58, 237, 0.03) 0%, rgba(3, 0, 20, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 50px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; perspective: 1200px; backdrop-filter: blur(20px);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+        }
+        .iso-box::after {
+            content: ''; position: absolute; width: 200px; height: 200px; background: var(--accent);
+            filter: blur(80px); opacity: 0.3; top: 60%; left: 50%;
+            transform: translate(-50%, -50%) rotateX(60deg);
+            animation: corePulse 4s ease-in-out infinite alternate;
+        }
+        @keyframes corePulse { 0% { opacity: 0.2; transform: translate(-50%, -50%) rotateX(60deg) scale(0.8); } 100% { opacity: 0.5; transform: translate(-50%, -50%) rotateX(60deg) scale(1.2); } }
+
+        .iso-layers { position: relative; width: 320px; height: 240px; transform-style: preserve-3d; transform: rotateX(55deg) rotateZ(-40deg); transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .iso-box:hover .iso-layers { transform: rotateX(50deg) rotateZ(-45deg); }
+
+        .layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: white;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            backdrop-filter: blur(8px); transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 700; font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); letter-spacing: 0.5px;
+        }
+        .layer i { color: var(--accent); filter: drop-shadow(0 0 10px var(--accent-glow)); transition: 0.3s; }
+        
+        .l1 { transform: translateZ(0px); background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(0,0,0,0.2)); z-index: 1; }
+        .l2 { transform: translateZ(60px); z-index: 2; }
+        .l3 { transform: translateZ(120px); z-index: 3; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03)); border-color: rgba(255,255,255,0.4); }
+        
+        .iso-box:hover .l2 { transform: translateZ(90px); }
+        .iso-box:hover .l3 { transform: translateZ(180px); }
+
+        /* --- 8. FAIR PLAY --- */
+        .fair-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-top: 50px; }
+        .fair-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            border: 1px solid var(--border); padding: 50px; border-radius: 30px; transition: 0.4s;
+        }
+        .fair-card:hover { background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 100%); border-color: var(--accent); transform: translateY(-5px); }
+
+        /* --- 9. IMAGE --- */
+        .img-reveal-section { text-align: center; }
+        .img-container {
+            width: 100%; height: 750px; position: relative; overflow: hidden;
+            border-radius: 50px; border: 1px solid var(--border); margin: 60px auto;
+        }
+        .main-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.9) contrast(1.1); }
+        .img-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, #030014, transparent 60%);
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 80px;
+        }
+
+        /* --- 10. WAITLIST --- */
+        .waitlist-section { text-align: center; max-width: 800px; margin: 0 auto; background: var(--card-bg); border-radius: 50px; border: 1px solid var(--border); padding: 100px 60px; box-shadow: 0 0 100px rgba(0,0,0,0.5); }
+        .input-group { display: flex; gap: 15px; margin-top: 50px; justify-content: center; flex-wrap: wrap; }
+        input {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+            padding: 18px 35px; border-radius: 100px; color: white; width: 380px; outline: none; transition: 0.3s; font-size: 1rem;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 20px rgba(124, 58, 237, 0.2); }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(15px);
+            z-index: 2000; display: none; opacity: 0;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-content {
+            background: #0a051e; border: 1px solid var(--border); border-top: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%; max-width: 650px; padding: 50px;
+            border-radius: 40px; position: relative; transform: scale(0.9); opacity: 0;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9); text-align: left;
+        }
+        .close-modal-btn {
+            position: absolute; top: 25px; right: 25px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            color: white; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s;
+        }
+        .close-modal-btn:hover { background: var(--accent); transform: rotate(90deg); }
+        .modal-title { font-size: 2.2rem; margin-bottom: 20px; color: #fff; }
+        .modal-list { list-style: none; padding: 0; margin-bottom: 30px; }
+        .modal-list li { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; color: #ddd; font-size: 1.05rem; }
+        .modal-list li i { color: var(--accent); }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="cursor-light" id="cursorLight"></div>
+    <div class="mesh-grid"></div>
+
+    <header id="mainHeader">
+        <a href="index.html" class="logo">
+            <img src="images/1nestep.png" alt="1NESTEP Logo"> 
+        </a>
+        
+        <div class="nav-links">
+            <a href="studentindex.html">Home</a>
+            <a href="ComingSoon.html">Programs</a>
+            <a href="ComingSoon.html">Mentorship</a>
+            <a href="ComingSoon.html">Stories</a>
+        </div>
+
+        <div class="header-actions" id="authButtons">
+            <a href="login.html" style="color:#fff; text-decoration:none; font-size:0.9rem;">Log In</a>
+            <a href="enroll.html" class="btn-primary">Join Now</a>
+        </div>
+
+        <div class="user-profile" id="userProfile" onclick="toggleProfile()">
+            <div class="profile-avatar" id="avatarInitials">U</div>
+            
+            <div class="profile-dropdown">
+                <div class="profile-info">
+                    <h4 id="uName">Loading...</h4>
+                    <span id="uEmail">student@example.com</span>
+                    <br>
+                    <div class="profile-badge" id="uCourse">No Program</div>
+                </div>
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); width:100%;">
+                <button class="logout-btn" id="logoutBtn">Log Out</button>
+            </div>
+        </div>
+
+        <button class="mobile-toggle" id="mobileToggle">
+            <i data-lucide="menu" size="24"></i>
+        </button>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay">
+        <div class="mobile-nav-links">
+            <button class="mobile-close-btn" id="mobileCloseBtn">
+                <i data-lucide="x"></i>
+            </button>
+
+            <a href="studentindex.html">Home</a>
+            <a href="ComingSoon.html">Programs</a>
+            <a href="ComingSoon.html">Mentorship</a>
+            <a href="ComingSoon.html">Stories</a>
+            
+            <a href="login.html" id="mobileLoginBtn" style="color:var(--accent-light); margin-top:20px; font-size:1.1rem; opacity:0;">Log In</a>
+            <a href="enroll.html" id="mobileJoinBtn" class="btn-primary" style="margin-top:10px; opacity:0;">Join Now</a>
+            <a href="#" id="mobileLogoutBtn" style="color:#ef4444; margin-top:20px; display:none; font-size:1.1rem; opacity:0;">Log Out</a>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div>
+            <h1 class="reveal-stagger">Empower Your <br><span class="gradient-text">Future Self</span></h1>
+            <p class="reveal-stagger">Enter a new era of student growth. Simplify your career path, master new skills, and prepare for tomorrow's opportunities.</p>
+            <div class="hero-buttons reveal-stagger">
+                <a href="enroll.html"><button class="btn-primary">Start Your Journey</button></a>
+                <a href="ComingSoon.html"><button class="btn-primary" style="background:transparent; border:none; box-shadow:none;">View Programs <i data-lucide="arrow-right" size="18" style="margin-left:5px;"></i></button></a>
+            </div>
+        </div>
+        
+        <div class="hero-3d" id="hero3dContainer">
+            </div>
+    </section>
+
+    <section id="phone-section">
+        <div class="huge-text" id="movingText">LEVEL UP YOUR CAREER</div>
+        <div class="phone-mockup" id="phone">
+            <div class="phone-screen">
+                <h3 style="font-size: 1.4rem; margin-bottom: 5px;">Your Progress</h3>
+                <p style="font-size: 0.8rem; margin-bottom: 30px; color: #ccc;">Tracking career milestones.</p>
+                <div class="mini-funnel">
+                    <div class="dot" style="left: 20%; animation-delay: 0s;"></div>
+                    <div class="dot" style="left: 50%; animation-delay: 0.5s;"></div>
+                    <div class="dot" style="left: 80%; animation-delay: 1s;"></div>
+                    <div class="dot" style="left: 30%; animation-delay: 1.5s;"></div>
+                </div>
+                <button style="margin-top: auto; padding: 12px 30px; background: #7c3aed; border: none; border-radius: 100px; color: white; font-size: 0.9rem; font-weight: bold;">View Profile ></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="enroll-section" id="enrollTrigger">
+        <div class="enroll-banner">
+            <div class="enroll-glow"></div>
+            <div style="z-index: 1;">
+                <h3 style="font-size:2.2rem; font-weight:800;">Ready to launch your career?</h3>
+                <p style="margin: 0; color: var(--text-muted); font-size:1.1rem;">Join thousands of students building their future today.</p>
+            </div>
+            <div style="margin-top: 20px; z-index: 1;">
+                <a href="enroll.html" class="btn-primary" style="padding: 16px 45px; font-size: 1.1rem;">Enroll Now</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="spotlight-group" id="featuresSection">
+        <div class="spotlight-glow" id="spotlight"></div>
+        <h2 style="text-align: center; font-size: 3rem; margin-bottom: 80px;">Student Benefits</h2>
+        <div class="features-grid">
+            <div class="feature-card reveal-card" onclick="openFeatureModal(1)">
+                <div class="card-header"><span>01.</span><i data-lucide="arrow-up-right"></i></div>
+                <h3>Personalized Learning</h3>
+                <p style="font-size: 0.95rem; margin-top: 15px;">Curriculum adapted to your pace and goals.</p>
+            </div>
+            <div class="feature-card reveal-card" onclick="openFeatureModal(2)">
+                <div class="card-header"><span>02.</span><i data-lucide="arrow-up-right"></i></div>
+                <h3>Expert Mentorship</h3>
+                <p style="font-size: 0.95rem; margin-top: 15px;">Direct guidance from industry leaders.</p>
+            </div>
+            <div class="feature-card reveal-card" onclick="openFeatureModal(3)">
+                <div class="card-header"><span>03.</span><i data-lucide="arrow-up-right"></i></div>
+                <h3>Global Community</h3>
+                <p style="font-size: 0.95rem; margin-top: 15px;">Connect with peers from around the world.</p>
+            </div>
+            <div class="feature-card reveal-card" onclick="openFeatureModal(4)">
+                <div class="card-header"><span>04.</span><i data-lucide="arrow-up-right"></i></div>
+                <h3>Real-World Projects</h3>
+                <p style="font-size: 0.95rem; margin-top: 15px;">Build a portfolio that employers love.</p>
+            </div>
+            <div class="feature-card reveal-card" onclick="openFeatureModal(5)">
+                <div class="card-header"><span>05.</span><i data-lucide="arrow-up-right"></i></div>
+                <h3>Internship Access</h3>
+                <p style="font-size: 0.95rem; margin-top: 15px;">Exclusive opportunities with top firms.</p>
+            </div>
+            <div class="feature-card reveal-card" onclick="openFeatureModal(6)">
+                <div class="card-header"><span>06.</span><i data-lucide="arrow-up-right"></i></div>
+                <h3>24/7 Guidance</h3>
+                <p style="font-size: 0.95rem; margin-top: 15px;">Always-on support for your questions.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="platform-section">
+        <div>
+            <h2 style="font-size: 3rem; margin-bottom: 25px;">Barriers Are Gone</h2>
+            <p style="margin-bottom: 15px; font-size: 1.15rem; color: var(--text-muted); max-width: 500px;">
+                We have stripped away the complexity. Our multi-layered education stack ensures zero confusion in your learning journey.
+            </p>
+            
+            <div class="barrier-stats">
+                <div class="stat-item interactive-stat active" onclick="updateBarrier(1)" id="stat-1">
+                    <div class="stat-number">01</div>
+                    <div class="stat-label">Skill Acquisition</div>
+                    <div class="stat-desc">Master the modern tech stack with hands-on practice.</div>
+                    <div class="stat-hint"><i data-lucide="eye" size="14"></i> View</div>
+                </div>
+                <div class="stat-item interactive-stat" onclick="updateBarrier(2)" id="stat-2">
+                    <div class="stat-number">02</div>
+                    <div class="stat-label">Project Building</div>
+                    <div class="stat-desc">Create production-ready apps for your portfolio.</div>
+                    <div class="stat-hint"><i data-lucide="eye" size="14"></i> View</div>
+                </div>
+                <div class="stat-item interactive-stat" onclick="updateBarrier(3)" id="stat-3">
+                    <div class="stat-number">03</div>
+                    <div class="stat-label">Job Placement</div>
+                    <div class="stat-desc">Direct referrals to our network of hiring partners.</div>
+                    <div class="stat-hint"><i data-lucide="eye" size="14"></i> View</div>
+                </div>
+                <div class="stat-item interactive-stat" onclick="updateBarrier(4)" id="stat-4">
+                    <div class="stat-number">04</div>
+                    <div class="stat-label">Career Growth</div>
+                    <div class="stat-desc">Post-grad mentorship to help you climb the ladder.</div>
+                    <div class="stat-hint"><i data-lucide="eye" size="14"></i> View</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="iso-box">
+            <div class="iso-layers">
+                <div class="layer l1">
+                    <i data-lucide="layers" size="32"></i>
+                    <span id="layer1">Advanced Curriculum</span>
+                </div>
+                <div class="layer l2">
+                    <i data-lucide="code-2" size="32"></i>
+                    <span id="layer2">Practical Application</span>
+                </div>
+                <div class="layer l3">
+                    <i data-lucide="rocket" size="32"></i>
+                    <span id="layer3">Career Coaching</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 style="text-align: center; margin-bottom: 50px; font-size:3rem;">Equal Opportunities</h2>
+        <div class="fair-grid">
+            <div class="fair-card">
+                <h3>Fair Play Access</h3>
+                <p style="font-size: 1rem; margin-top: 15px;">Seamlessly integrates education regardless of your background. We believe talent is universal.</p>
+            </div>
+            <div class="fair-card">
+                <h3>Merit Based System</h3>
+                <p style="font-size: 1rem; margin-top: 15px;">Rewards hard work, consistency, and proven project output. Your results speak for themselves.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="img-reveal-section">
+        <h2 style="font-size: 3rem; margin-bottom: 50px;">Visualized Growth</h2>
+        <div class="img-container" id="revealImg">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" alt="Students Working" class="main-img">
+            <div class="img-overlay">
+                <div class="img-caption">Complete Visibility</div>
+                <p>Monitor your entire career trajectory from a single glass pane.</p>
+            </div>
+        </div>
+    </section>
+    
+
+    <section class="waitlist-section">
+        <h2 style="font-size: 3.5rem; margin-bottom: 25px;">Join the 1NESTEP Waitlist</h2>
+        <p>Be the first to experience the future of student empowerment.</p>
+        <div class="input-group">
+            <input type="email" placeholder="Enter your student email">
+            <a href="enroll.html"><button class="btn-primary">Sign up</button></a>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="guideModal" onclick="closeGuideModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal-btn" onclick="closeGuideModal(event)"><i data-lucide="x"></i></button>
+            <h2 class="modal-title">Unlock Your Potential:<br> How We Guide You</h2>
+            <div class="modal-body">
+                <p>At 1NESTEP, guidance isn't just about answering questions; it's about proactively shaping your path to success.</p>
+                <p><strong>Here is how our tracking system works:</strong></p>
+                <ul class="modal-list">
+                    <li><i data-lucide="target"></i> <strong>Goal Setting:</strong> We help you define clear, achievable milestones.</li>
+                    <li><i data-lucide="bar-chart-2"></i> <strong>Real-time Metrics:</strong> Visualize your coding streaks and skill speed.</li>
+                    <li><i data-lucide="brain-circuit"></i> <strong>AI Analysis:</strong> Our system identifies your weak points.</li>
+                    <li><i data-lucide="message-circle"></i> <strong>Feedback Loops:</strong> Receive instant feedback on your code.</li>
+                </ul>
+                <a href="enroll.html" class="btn-primary" style="width: 100%; margin-top: 20px;">Start Tracking Your Growth</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="featureModal" onclick="closeFeatureModal(event)">
+        <div class="modal-content feature-modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal-btn" onclick="closeFeatureModal(event)"><i data-lucide="x"></i></button>
+            <div class="feature-modal-icon" id="fModalIcon"><i data-lucide="star"></i></div>
+            <h2 class="modal-title" id="fModalTitle">Feature Title</h2>
+            <div class="modal-body">
+                <p id="fModalDesc">Feature Description goes here.</p>
+                <ul class="modal-list" id="fModalList"></ul>
+                <a href="enroll.html" class="btn-primary" style="width: 100%; margin-top: 20px;">Start Your Journey</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --------------------------------------------------------------
+        // 1. FIREBASE CONFIGURATION & IMPORTS
+        // --------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // FIREBASE CONFIG FROM CONSOLE
+        const firebaseConfig = {
+            apiKey: "AIzaSyCw5pRzjfRKCm14G5Z27L_li3kbKijJR3Q", 
+            authDomain: "nestep-b1893.firebaseapp.com",
+            projectId: "nestep-b1893",
+            storageBucket: "nestep-b1893.firebasestorage.app",
+            messagingSenderId: "419529225870",
+            appId: "1:419529225870:web:24dc8b6791d509ff0cfbdf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --------------------------------------------------------------
+        // 2. DOM ELEMENTS
+        // --------------------------------------------------------------
+        const authButtons = document.getElementById('authButtons'); // Login/Join buttons
+        const userProfile = document.getElementById('userProfile'); // Avatar section
+        
+        // Mobile Elements
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+        const mobileJoinBtn = document.getElementById('mobileJoinBtn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+        
+        // Profile Dropdown Elements
+        const uName = document.getElementById('uName');
+        const uEmail = document.getElementById('uEmail');
+        const uCourse = document.getElementById('uCourse');
+        const avatarInitials = document.getElementById('avatarInitials');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // --------------------------------------------------------------
+        // 3. AUTHENTICATION LOGIC
+        // --------------------------------------------------------------
+        
+        // Listen for login state changes
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // --- USER IS LOGGED IN ---
+                
+                // 1. Desktop Header
+                if(authButtons) authButtons.style.display = 'none';
+                if(userProfile) userProfile.style.display = 'flex';
+
+                // 2. Mobile Menu (Hide Login/Join, Show Logout)
+                if(mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+                if(mobileJoinBtn) mobileJoinBtn.style.display = 'none';
+                if(mobileLogoutBtn) mobileLogoutBtn.style.display = 'block';
+
+                // 3. Fetch Student Data from Firestore
+                try {
+                    // Reference to the 'enroll_student' collection using User UID
+                    const docRef = doc(db, "enroll_student", user.uid);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        uName.innerText = data.fullName || "Student";
+                        uEmail.innerText = data.email || user.email;
+                        const courseName = data.course || data.program || "General Student";
+                        uCourse.innerText = courseName.charAt(0).toUpperCase() + courseName.slice(1);
+                        const initial = data.fullName ? data.fullName.charAt(0).toUpperCase() : "U";
+                        avatarInitials.innerText = initial;
+                    } else {
+                        uName.innerText = "Student";
+                        uEmail.innerText = user.email;
+                    }
+                } catch (error) {
+                    console.error("Error fetching student data:", error);
+                }
+
+                // Redirect 'Join Now' buttons
+                const joinButtons = document.querySelectorAll('a[href="enroll.html"]');
+                joinButtons.forEach(btn => btn.href = "enroll.html");
+
+            } else {
+                // --- USER IS LOGGED OUT ---
+                
+                // 1. Desktop Header
+                if(authButtons) authButtons.style.display = 'flex';
+                if(userProfile) userProfile.style.display = 'none';
+
+                // 2. Mobile Menu (Show Login/Join, Hide Logout)
+                if(mobileLoginBtn) mobileLoginBtn.style.display = 'block';
+                if(mobileJoinBtn) mobileJoinBtn.style.display = 'block';
+                if(mobileLogoutBtn) mobileLogoutBtn.style.display = 'none';
+            }
+        });
+
+        // --------------------------------------------------------------
+        // 4. LOGOUT LOGIC (DESKTOP)
+        // --------------------------------------------------------------
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Stop dropdown from toggling
+                try {
+                    await signOut(auth);
+                    window.location.reload(); // Refresh page to clear state
+                } catch (error) {
+                    console.error("Logout Error:", error);
+                }
+            });
+        }
+
+        // --------------------------------------------------------------
+        // 5. LOGOUT LOGIC (MOBILE)
+        // --------------------------------------------------------------
+        if(mobileLogoutBtn) {
+            mobileLogoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    window.location.reload(); // Refresh page to clear state
+                } catch (error) {
+                    console.error("Logout Error:", error);
+                }
+            });
+        }
+
+        // --------------------------------------------------------------
+        // 6. WINDOW FUNCTIONS (For HTML onclick attributes)
+        // --------------------------------------------------------------
+        
+        // Toggle Profile Dropdown
+        window.toggleProfile = function() {
+            userProfile.classList.toggle('active');
+        }
+
+        // Close dropdown if clicking outside
+        document.addEventListener('click', function(event) {
+            if (userProfile && !userProfile.contains(event.target)) {
+                userProfile.classList.remove('active');
+            }
+        });
+
+        // Make functions available globally for other interactive elements
+        window.openGuideModal = function() { openModal(document.getElementById('guideModal')); }
+        window.closeGuideModal = function() { closeModal(document.getElementById('guideModal')); }
+        window.closeFeatureModal = function(e) { closeModal(featureModal); }
+        
+        window.openFeatureModal = function(id) { 
+            const featureData = {
+                1: { title: "Personalized Learning", icon: "user-check", desc: "No two students learn the same way. Our AI-driven engine adapts the curriculum to your pace.", list: ["Custom learning paths", "Adaptive quizzes", "Focus on weak areas"] },
+                2: { title: "Expert Mentorship", icon: "award", desc: "Learn from seniors at Google, Amazon, and Microsoft. Weekly calls to unblock your progress.", list: ["1-on-1 sessions", "Code reviews", "Career advice"] },
+                3: { title: "Global Community", icon: "globe", desc: "Join a network of 10,000+ peers. Collaborate on projects and make lifelong connections.", list: ["Discord server access", "Study groups", "Hackathons"] },
+                4: { title: "Real-World Projects", icon: "briefcase", desc: "Stop building to-do lists. Build complex, production-grade applications that solve real problems.", list: ["Full-stack apps", "Team collaboration", "Deployment training"] },
+                5: { title: "Internship Access", icon: "building", desc: "Skip the resume pile. We send your profile directly to our hiring partners upon graduation.", list: ["Exclusive job board", "Interview prep", "Direct referrals"] },
+                6: { title: "24/7 Guidance", icon: "life-buoy", desc: "Stuck on a bug at 2 AM? Our AI tutor and community support are always online.", list: ["Instant AI help", "Forum support", "Documentation"] }
+            };
+
+            const data = featureData[id];
+            if(data) {
+                document.getElementById('fModalTitle').innerText = data.title;
+                document.getElementById('fModalDesc').innerText = data.desc;
+                document.getElementById('fModalIcon').innerHTML = `<i data-lucide="${data.icon}" size="32"></i>`;
+                document.getElementById('fModalList').innerHTML = data.list.map(item => `<li><i data-lucide="check" size="16"></i> ${item}</li>`).join('');
+                lucide.createIcons();
+                openModal(document.getElementById('featureModal'));
+            }
+        }
+
+        const barrierData = {
+            1: ["Advanced Curriculum", "Practical Application", "Career Coaching"],
+            2: ["Ideation Phase", "Agile Development", "Deployment"],
+            3: ["Resume Review", "Mock Interviews", "Hiring Network"],
+            4: ["Salary Negotiation", "Leadership Skills", "Alumni Network"]
+        };
+
+        window.updateBarrier = function(id) {
+            document.querySelectorAll('.stat-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`stat-${id}`).classList.add('active');
+            
+            gsap.to(".layer", {
+                scale: 0.8, opacity: 0, duration: 0.3, stagger: 0.05,
+                onComplete: () => {
+                    const texts = barrierData[id];
+                    document.getElementById('layer1').innerText = texts[0];
+                    document.getElementById('layer2').innerText = texts[1];
+                    document.getElementById('layer3').innerText = texts[2];
+                    gsap.to(".layer", { scale: 1, opacity: 1, duration: 0.4, stagger: 0.1, ease: "back.out(1.7)" });
+                }
+            });
+        }
+    </script>
+
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        // STANDARD UI LOGIC (Visuals & Animations)
+        lucide.createIcons();
+
+        const lenis = new Lenis({ lerp: 0.05, smoothWheel: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        const cursorLight = document.getElementById('cursorLight');
+        const header = document.getElementById('mainHeader');
+        let lastY = 0;
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(cursorLight, { x: e.clientX, y: e.clientY, duration: 0.2 });
+        });
+        lenis.on('scroll', (e) => {
+            const currY = e.animatedScroll;
+            header.classList.toggle('scrolled', currY > 50);
+            if (currY > lastY && currY > 300) header.classList.add('hidden');
+            else header.classList.remove('hidden');
+            lastY = currY;
+        });
+
+        // Mobile Menu
+        const mobileToggle = document.getElementById('mobileToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+        const body = document.body;
+        let isMenuOpen = false;
+
+        function openMenu() {
+            isMenuOpen = true;
+            mobileOverlay.classList.add('active');
+            body.classList.add('menu-open');
+            mobileToggle.innerHTML = '<i data-lucide="x" size="24"></i>';
+            lucide.createIcons();
+        }
+
+        function closeMenu() {
+            isMenuOpen = false;
+            mobileOverlay.classList.remove('active');
+            body.classList.remove('menu-open');
+            mobileToggle.innerHTML = '<i data-lucide="menu" size="24"></i>';
+            lucide.createIcons();
+        }
+
+        mobileToggle.addEventListener('click', () => {
+            if(isMenuOpen) closeMenu(); else openMenu();
+        });
+
+        mobileCloseBtn.addEventListener('click', closeMenu);
+
+        document.querySelectorAll('.mobile-nav-links a').forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+
+        // Spotlight
+        const featuresSection = document.getElementById('featuresSection');
+        const spotlight = document.getElementById('spotlight');
+        featuresSection.addEventListener('mousemove', (e) => {
+            const rect = featuresSection.getBoundingClientRect();
+            spotlight.style.opacity = 1;
+            gsap.to(spotlight, { x: e.clientX - rect.left, y: e.clientY - rect.top, duration: 0.3 });
+        });
+        featuresSection.addEventListener('mouseleave', () => { spotlight.style.opacity = 0; });
+
+        // Animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        gsap.from(".reveal-stagger", { y: 50, opacity: 0, stagger: 0.2, duration: 1, ease: "power3.out" });
+
+        let phoneTl = gsap.timeline({
+            scrollTrigger: { trigger: "#phone-section", start: "top bottom", end: "bottom top", scrub: 1 }
+        });
+        phoneTl.to("#phone", { y: -100, rotateY: 15, duration: 1 }, 0)
+               .fromTo("#movingText", { x: "20%" }, { x: "-20%" }, 0);
+
+        gsap.from(".enroll-banner", {
+            scrollTrigger: { trigger: ".enroll-section", start: "top 85%" },
+            y: 50, opacity: 0, duration: 0.8, ease: "power2.out"
+        });
+
+        gsap.from(".reveal-card", {
+            scrollTrigger: { trigger: ".features-grid", start: "top 80%" },
+            y: 50, opacity: 0, stagger: 0.1, duration: 0.8
+        });
+
+        gsap.from("#videoFrame", {
+            scrollTrigger: { trigger: ".video-showcase", start: "top 80%" },
+            scale: 0.9, opacity: 0, duration: 1, ease: "power2.out"
+        });
+
+        gsap.from(".layer", {
+            scrollTrigger: { trigger: ".platform-section", start: "top 70%" },
+            x: -100, opacity: 0, stagger: 0.2, duration: 1, ease: "power3.out"
+        });
+
+        gsap.fromTo("#revealImg", 
+            { clipPath: "inset(20% 10% 20% 10% round 40px)" },
+            { clipPath: "inset(0% 0% 0% 0% round 40px)", scrollTrigger: {
+                trigger: ".img-reveal-section", start: "top bottom", end: "center center", scrub: 1
+            }}
+        );
+        gsap.fromTo(".main-img", 
+            { scale: 1.2 },
+            { scale: 1, scrollTrigger: {
+                trigger: ".img-reveal-section", start: "top bottom", end: "center center", scrub: 1
+            }}
+        );
+
+        // --- 3D PARTICLE SPHERE (THREE.JS) ---
+        function initParticleSphere() {
+            const container = document.getElementById('hero3dContainer');
+            if (!container) return;
+
+            // Scene Setup
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 2.2; 
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Create Group for syncing rotation
+            const group = new THREE.Group();
+            scene.add(group);
+
+            // 1. Particle Geometry
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 9000;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            const originalPos = new Float32Array(particlesCount * 3);
+            
+            // Create a sphere shape
+            for(let i = 0; i < particlesCount; i++) {
+                const phi = Math.acos( -1 + ( 2 * i ) / particlesCount );
+                const theta = Math.sqrt( particlesCount * Math.PI ) * phi;
+                const r = 1.2;
+
+                const x = r * Math.cos(theta) * Math.sin(phi);
+                const y = r * Math.sin(theta) * Math.sin(phi);
+                const z = r * Math.cos(phi);
+
+                posArray[i * 3] = x;
+                posArray[i * 3 + 1] = y;
+                posArray[i * 3 + 2] = z;
+
+                originalPos[i * 3] = x;
+                originalPos[i * 3 + 1] = y;
+                originalPos[i * 3 + 2] = z;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.012,
+                color: 0x7c3aed,
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            group.add(particlesMesh);
+
+            // 2. Invisible Hit Sphere (For Raycasting)
+            const hitGeometry = new THREE.SphereGeometry(1.25, 32, 32);
+            const hitMaterial = new THREE.MeshBasicMaterial({ visible: false });
+            const hitSphere = new THREE.Mesh(hitGeometry, hitMaterial);
+            group.add(hitSphere);
+
+            // Interaction Variables
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let isHovering = false;
+
+            // Mouse Move Event
+            document.addEventListener('mousemove', (event) => {
+                // Calculate Normalized Device Coordinates (-1 to +1)
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+                
+                // Only consider hovering if mouse is actually over the canvas area
+                if (event.clientX >= rect.left && event.clientX <= rect.right &&
+                    event.clientY >= rect.top && event.clientY <= rect.bottom) {
+                    isHovering = true;
+                } else {
+                    isHovering = false;
+                }
+            });
+
+            // Animation Loop
+            const clock = new THREE.Clock();
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                
+                // Rotate entire group
+                group.rotation.y += 0.002;
+                group.rotation.x = Math.sin(clock.getElapsedTime() * 0.2) * 0.1;
+
+                // Physics: Repulsion
+                if(isHovering) {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(hitSphere);
+
+                    if (intersects.length > 0) {
+                        // Get the point where mouse hits the invisible sphere
+                        const point = intersects[0].point;
+                        
+                        // Convert world point to local space of the group to match particle positions
+                        hitSphere.worldToLocal(point); 
+
+                        const positions = particlesGeometry.attributes.position.array;
+                        const radius = 0.5; // Repulsion radius
+                        const strength = 0.5; // Repulsion strength
+
+                        for (let i = 0; i < particlesCount; i++) {
+                            const dx = positions[i*3] - point.x;
+                            const dy = positions[i*3+1] - point.y;
+                            const dz = positions[i*3+2] - point.z;
+
+                            const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+                            if (dist < radius) {
+                                // Calculate repulsion direction (away from mouse point)
+                                const force = (radius - dist) / radius;
+                                const nx = dx / dist;
+                                const ny = dy / dist;
+                                const nz = dz / dist;
+
+                                positions[i*3] += nx * force * strength * 0.1;
+                                positions[i*3+1] += ny * force * strength * 0.1;
+                                positions[i*3+2] += nz * force * strength * 0.1;
+                            }
+                        }
+                    }
+                }
+
+                // Elastic Return to Original Shape
+                const positions = particlesGeometry.attributes.position.array;
+                for (let i = 0; i < particlesCount; i++) {
+                    const ox = originalPos[i*3];
+                    const oy = originalPos[i*3+1];
+                    const oz = originalPos[i*3+2];
+
+                    // Lerp back to original position
+                    positions[i*3] += (ox - positions[i*3]) * 0.05;
+                    positions[i*3+1] += (oy - positions[i*3+1]) * 0.05;
+                    positions[i*3+2] += (oz - positions[i*3+2]) * 0.05;
+                }
+
+                particlesGeometry.attributes.position.needsUpdate = true;
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        // Initialize after DOM is ready
+        initParticleSphere();
+
+        // Particles (Existing Background Canvas)
+        const canvas = document.getElementById('particleCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            let particles = [];
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = -10;
+                    this.size = Math.random() * 2 + 1;
+                    this.speed = Math.random() * 2 + 1;
+                    this.color = Math.random() > 0.5 ? '#ffffff' : '#7c3aed';
+                }
+                update() {
+                    this.y += this.speed;
+                    const centerX = canvas.width / 2;
+                    const dx = centerX - this.x;
+                    this.x += dx * 0.005; 
+                    if (this.y > canvas.height) { this.y = -10; this.x = Math.random() * canvas.width; }
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+            for(let i=0; i<100; i++) particles.push(new Particle());
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+        }
+
+        // Modals (Visuals)
+        function openModal(modal) {
+            if(!modal) return;
+            modal.style.display = 'flex';
+            gsap.to(modal, { opacity: 1, duration: 0.3 });
+            gsap.fromTo(modal.querySelector(".modal-content"), { scale: 0.9, opacity: 0, y: 50 }, { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" });
+            lenis.stop();
+        }
+        function closeModal(modal) {
+            if(!modal) return;
+            gsap.to(modal, { opacity: 0, duration: 0.3, onComplete: () => { modal.style.display = 'none'; }});
+            lenis.start();
+        }
+    </script>
+</body>
+</html>

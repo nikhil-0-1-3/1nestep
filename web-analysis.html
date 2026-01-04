@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Strategic Analysis | 1nestep Startup Agency</title>
+  <link rel="stylesheet" href="ones-nav.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    :root {
+      --bg-deep: #0a192f;
+      --cyan-glow: #00d2ff;
+      --magenta-glow: #ff2e63;
+      --success-green: #00ff88;
+      --text-muted: #a9b1d6;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+      background-image: radial-gradient(at 0% 0%, rgba(0,210,255,0.05) 0, transparent 50%);
+       /* Space for fixed navbar */
+    }
+
+   
+
+    /* --- DASHBOARD & CONTENT STYLES --- */
+    #system-narrator {
+      position: relative;
+      width: 90%;
+      max-width: 1200px;
+      height: 450px;
+      margin: 40px auto 0;
+      background: #0d1117;
+      border: 1px solid var(--cyan-glow);
+      padding: 30px;
+      border-radius: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      color: var(--success-green);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      z-index: 10;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    #log-content { display: flex; flex-direction: column; justify-content: flex-end; min-height: 100%; }
+
+    .performance-comparison { display: none; padding: 60px 10%; background: rgba(255,255,255,0.02); margin-top:50px; }
+
+    .data-card { 
+      background: rgba(255,255,255,0.02); 
+      padding: 30px; 
+      border-radius: 15px; 
+      border: 1px solid rgba(0,210,255,0.1); 
+      transition: 0.3s;
+    }
+
+    .roadmap-section { padding: 80px 10%; max-width: 1000px; margin: 0 auto; }
+    .roadmap-item { display: flex; gap: 30px; margin-bottom: 40px; padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.01); transition: 0.3s; }
+    .roadmap-item:hover { background: rgba(0,210,255,0.05); transform: translateX(10px); }
+    .step-circle { min-width: 50px; height: 50px; border: 2px solid var(--cyan-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--cyan-glow); }
+
+    #analysis-results { display: none; padding: 40px 10%; background: rgba(0,210,255,0.05); border-radius: 20px; margin: 20px 10%; border: 1px solid var(--cyan-glow); }
+    
+    footer { padding: 2rem; text-align: center; opacity: 0.6; font-size: 0.9rem; background: #0a192f; border-top: 1px solid rgba(255,255,255,0.05); }
+    /* --- CONTACT FORM SPECIFIC --- */
+    .form-label {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--cyan-glow);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    .cyber-input {
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 210, 255, 0.2);
+      padding: 12px 15px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      transition: 0.3s;
+      border-radius: 4px;
+    }
+
+    .cyber-input:focus {
+      border-color: var(--cyan-glow);
+      background: rgba(0, 210, 255, 0.05);
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+    }
+    .body{
+        padding-top: 0px ;
+    }
+    :root {
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --border-soft: rgba(255, 255, 255, 0.1);
+    --input-focus: #00d2ff;
+  }
+
+  /* Cleaner System Narrator */
+  #system-narrator {
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    height: 350px; /* More compact */
+    margin: 60px auto 0;
+    background: #0f172a; /* Solid deep blue/grey */
+    border: 1px solid var(--border-soft);
+    padding: 25px;
+    border-radius: 16px;
+    font-family: 'Montserrat', sans-serif; /* Cleaner font */
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+  }
+
+  #url-input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 8px;
+    padding: 12px 15px !important;
+    color: var(--success-green) !important;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+  }
+
+  #url-input:focus {
+    border-color: var(--input-focus) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.2);
+  }
+
+  /* Modern Performance Benchmarks */
+  .performance-comparison {
+    padding: 80px 10%;
+    background: transparent;
+  }
+
+  .bench-grid {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 50px;
+  }
+
+  .metric-card {
+    flex: 1;
+    min-width: 300px;
+    padding: 40px;
+    border-radius: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    text-align: center;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  #legacy-card {
+    border-left: 4px solid var(--magenta-glow);
+  }
+
+  #optimized-card {
+    border-left: 4px solid var(--success-green);
+    background: linear-gradient(145deg, rgba(0, 255, 136, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+  }
+
+  .metric-value {
+    font-size: 3.5rem !important;
+    font-weight: 700;
+    margin: 20px 0;
+    letter-spacing: -2px;
+  }
+
+  .card-label {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  /* Flex Container for Side-by-Side Layout */
+  .dashboard-row {
+    display: flex;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 100px auto 40px;
+    padding: 0 5%;
+    align-items: stretch;
+  }
+
+  /* Adjust System Narrator for Sidebar Feel */
+  #system-narrator {
+    flex: 1; /* Takes up 40% */
+    min-width: 350px;
+    height: 480px; /* Matched to card heights */
+    background: #0d1117;
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    padding: 25px;
+    border-radius: 12px;
+    margin: 0 !important; /* Reset previous margin */
+    font-family: 'Courier New', monospace;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  /* Benchmarks Section Adjustment */
+  .performance-comparison {
+    flex: 1.5; /* Takes up 60% */
+    display: none; /* Controlled by your JS */
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  .bench-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+  }
+
+  /* Side-by-side Cards inside the benchmark section */
+  .cards-container {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+  }
+
+  .data-card-compact {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: 0.3s;
+  }
+
+  #legacy-card { border-top: 4px solid var(--magenta-glow); }
+  #optimized-card { border-top: 4px solid var(--success-green); background: rgba(0, 255, 136, 0.02); }
+
+  .metric-value {
+    font-size: 2.5rem !important;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 1100px) {
+    .dashboard-row { flex-direction: column; }
+    .cards-container { flex-direction: column; }
+    #system-narrator { height: 350px; }
+  }
+  /* --- Dashboard variables for easy customization --- */
+:root {
+  --panel-bg: rgba(13, 17, 23, 0.8);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(0, 0, 0, 0.3);
+  --glass-glow: rgba(0, 210, 255, 0.15);
+  --card-radius: 20px;
+  --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Container for System Narrator & Benchmarks */
+.dashboard-row {
+  display: flex;
+  gap: 24px;
+  max-width: 1300px;
+  margin: 100px auto;
+  padding: 0 20px;
+  align-items: stretch;
+}
+
+/* --- SYSTEM NARRATOR (Left Panel) --- */
+#system-narrator {
+  flex: 1;
+  min-width: 400px;
+  height: 450px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--card-radius);
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-smooth);
+}
+
+#system-narrator:hover {
+  border-color: rgba(0, 210, 255, 0.3);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Input Field Enhancement */
+#url-input {
+  width: 100%;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 12px;
+  padding: 16px 20px !important;
+  color: var(--success-green) !important;
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  margin-top: 15px;
+  transition: var(--transition-smooth);
+  box-sizing: border-box;
+}
+
+#url-input:focus {
+  border-color: var(--cyan-glow) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 20px var(--glass-glow);
+  outline: none;
+}
+
+/* --- PERFORMANCE BENCHMARKS (Right Panel) --- */
+.performance-comparison {
+  flex: 1.5;
+  margin-top: 0 !important; /* Overriding previous margins */
+  animation: fadeIn 0.8s ease-out;
+}
+
+.bench-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.cards-container {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}
+
+/* Common Card Styling */
+.data-card-compact, #legacy-card, #optimized-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--card-radius);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Legacy Card hover */
+#legacy-card:hover {
+  border-color: var(--magenta-glow);
+  background: rgba(255, 46, 99, 0.03);
+  transform: translateY(-5px);
+}
+
+/* Optimized Card hover */
+#optimized-card {
+  background: linear-gradient(145deg, rgba(0, 255, 136, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+#optimized-card:hover {
+  border-color: var(--success-green);
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+  transform: translateY(-5px);
+}
+
+/* Metric Typography */
+.metric-value {
+  font-size: 3.5rem !important;
+  font-weight: 800;
+  margin: 15px 0;
+  letter-spacing: -2px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Responsive Handling */
+@media (max-width: 1024px) {
+  .dashboard-row {
+    flex-direction: column;
+  }
+  #system-narrator {
+    min-width: 100%;
+    height: 350px;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}.dashboard-heading {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 0 20px;
+}
+
+.dashboard-heading h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin: 0;
+  background: linear-gradient(to right, #ffffff, var(--cyan-glow));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dashboard-heading p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+/* --- High-Interaction Roadmap --- */
+.roadmap-section {
+  position: relative;
+  padding: 100px 5%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* The vertical progress line with a "liquid" feel */
+.roadmap-section::before {
+  content: '';
+  position: absolute;
+  left: calc(5% + 59px); 
+  top: 200px;
+  bottom: 150px;
+  width: 2px;
+  background: rgba(0, 210, 255, 0.1);
+  z-index: 1;
+}
+
+.roadmap-item {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 40px;
+  padding: 35px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+/* Hover: The card "Pop-out" and Glow */
+.roadmap-item:hover {
+  background: rgba(10, 25, 47, 0.6);
+  border-color: var(--cyan-glow);
+  transform: scale(1.03) translateX(20px);
+  box-shadow: -20px 20px 40px rgba(0, 0, 0, 0.4), 
+              0 0 20px rgba(0, 210, 255, 0.1);
+}
+
+/* Step Circle Interaction */
+.step-circle {
+  min-width: 50px;
+  height: 50px;
+  border: 2px solid rgba(0, 210, 255, 0.2);
+  border-radius: 15px; /* Modern squircle shape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--cyan-glow);
+  background: #0a192f;
+  transition: all 0.4s ease;
+  transform: rotate(-10deg);
+}
+
+.roadmap-item:hover .step-circle {
+  transform: rotate(0deg) scale(1.2);
+  background: var(--cyan-glow);
+  color: #000;
+  box-shadow: 0 0 25px var(--cyan-glow);
+  border-color: #fff;
+}
+
+/* Content Transitions */
+.roadmap-item h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.4rem;
+  color: #fff;
+  letter-spacing: -0.5px;
+  transition: color 0.3s ease;
+}
+
+.roadmap-item:hover h4 {
+  color: var(--cyan-glow);
+}
+
+.roadmap-item p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.roadmap-item:hover p {
+  color: #fff;
+}
+
+/* Interactive Progress Indicator on the side of the card */
+.roadmap-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0px;
+  height: 40%;
+  background: var(--cyan-glow);
+  transition: width 0.3s ease;
+  border-radius: 0 5px 5px 0;
+}
+
+.roadmap-item:hover::after {
+  width: 5px;
+}
+/* --- Roadmap Section Styles --- */
+.roadmap-section {
+    position: relative;
+    padding: 120px 5%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Central connecting line using --slate */
+.roadmap-section::before {
+    content: '';
+    position: absolute;
+    left: calc(5% + 55px);
+    top: 250px;
+    bottom: 150px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--slate), transparent);
+    opacity: 0.3;
+}
+
+.roadmap-item {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 60px;
+    padding: 40px;
+    border-radius: 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* Magnetic Hover Interaction */
+.roadmap-item:hover {
+    transform: scale(1.02) translateX(25px);
+    background: rgba(98, 71, 104, 0.1); /* Subtle --accent-color tint */
+    border-color: var(--accent-color);
+    box-shadow: -15px 20px 40px rgba(0, 0, 0, 0.4), 
+                0 0 20px var(--glow);
+}
+
+/* Step Circle using --accent-color and --mauve */
+.step-circle {
+    min-width: 70px;
+    height: 70px;
+    border: 2px solid var(--slate);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--mauve);
+    background: var(--bg-color);
+    transition: all 0.4s ease;
+    transform: rotate(-10deg);
+    z-index: 2;
+}
+
+.roadmap-item:hover .step-circle {
+    transform: rotate(0deg) scale(1.1);
+    background: var(--accent-color);
+    color: var(--text-color);
+    border-color: var(--text-color);
+    box-shadow: 0 0 20px var(--accent-color);
+}
+
+/* Content Styling */
+.roadmap-item h4 {
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    letter-spacing: -0.5px;
+}
+
+.roadmap-item p {
+    margin: 0;
+    line-height: 1.7;
+    font-size: 1rem;
+    color: var(--text-dim);
+    transition: color 0.3s ease;
+}
+
+.roadmap-item:hover p {
+    color: #ffffff;
+}
+
+/* Decorative background glow that follows the mouse (simulated) */
+.roadmap-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, var(--glow), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.roadmap-item:hover::after {
+    opacity: 1;
+}
+/* --- Horizontal Roadmap Row --- */
+.roadmap-section {
+    position: relative;
+    padding: 80px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Container for the cards to sit in a row */
+.roadmap-container {
+    display: flex;
+    gap: 20px;
+    align-items: stretch; /* Ensures all cards are the same height */
+    justify-content: center;
+}
+
+/* Horizontal connecting line behind the cards */
+.roadmap-container::before {
+    content: '';
+    position: absolute;
+    top: 280px; /* Aligns behind the circles */
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--slate), transparent);
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.roadmap-item {
+    flex: 1; /* Each card takes equal width */
+    display: flex;
+    flex-direction: column; /* Content inside card stacks vertically */
+    align-items: center;
+    text-align: center;
+    padding: 40px 25px;
+    border-radius: 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* Hover: Vertical lift instead of horizontal slide */
+.roadmap-item:hover {
+    transform: translateY(-20px);
+    background: rgba(98, 71, 104, 0.15);
+    border-color: var(--accent-color);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                0 0 30px var(--glow);
+}
+
+.step-circle {
+    min-width: 60px;
+    height: 60px;
+    border: 2px solid var(--slate);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--mauve);
+    background: var(--bg-color);
+    margin-bottom: 25px; /* Space between number and title */
+    transition: all 0.4s ease;
+    z-index: 3;
+}
+
+.roadmap-item:hover .step-circle {
+    background: var(--accent-color);
+    color: var(--text-color);
+    border-color: var(--text-color);
+    box-shadow: 0 0 20px var(--accent-color);
+    transform: scale(1.1) rotate(5deg);
+}
+
+.roadmap-item h4 {
+    margin: 15px 0 10px 0;
+    font-size: 1.3rem;
+    color: var(--text-color);
+}
+
+.roadmap-item p {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+}
+
+/* Mobile Responsive: Stack them back to column on small screens */
+@media (max-width: 900px) {
+    .roadmap-container {
+        flex-direction: column;
+    }
+    .roadmap-container::before {
+        display: none;
+    }
+}
+/* --- Outer Technical Container --- */
+.system-command-center {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 30px;
+    background: var(--bg-color);
+    border: 1px solid var(--slate);
+    border-radius: 24px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(98, 71, 104, 0.1);
+   
+}
+
+/* Technical Header Enhancement */
+.dashboard-heading {
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.dashboard-heading h2 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin: 0;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+}
+
+.dashboard-heading p {
+    color: var(--mauve);
+    font-size: 0.75rem;
+    margin: 0;
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+/* Side-by-Side Dashboard Layout */
+.dashboard-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* System Narrator / Terminal */
+#system-narrator {
+    flex: 1;
+    min-width: 380px;
+    height: 350px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Performance Results */
+.performance-comparison {
+    flex: 1.2;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cards-container {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+    margin-top: 15px;
+}
+
+.data-card-compact {
+    flex: 1;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    text-align: center;
+    transition: 0.3s ease;
+}
+
+#legacy-card:hover { border-color: var(--magenta-glow); box-shadow: 0 0 15px rgba(255, 46, 99, 0.2); }
+#optimized-card:hover { border-color: var(--success-green); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Technical Metrics Table */
+#metrics-table-section {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--slate);
+    border-radius: 12px;
+    padding: 0 !important; /* Table fills the container */
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    padding: 15px;
+}
+
+td {
+    padding: 15px;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--card-border);
+}
+
+/* Mobile Fix */
+@media (max-width: 900px) {
+    .dashboard-row { flex-direction: column; }
+    .system-command-center { padding: 15px; }
+}
+/* --- MEDIA QUERIES FOR TECHNICAL DASHBOARD --- */
+
+/* Tablet & Smaller Desktop (Break side-by-side layout) */
+@media screen and (max-width: 1024px) {
+    .dashboard-row {
+        flex-direction: column; /* Stack Narrator above Benchmarks */
+        gap: 20px;
+    }
+
+    #system-narrator {
+        min-width:90%; /* Take full width */
+        height: 300px;  /* Slightly shorter for mobile scroll */
+    }
+
+    .performance-comparison {
+        width: 100%;
+    }
+}
+
+/* Mobile Devices (Optimizing the Card Grid and Table) */
+@media screen and (max-width: 600px) {
+    .system-command-center {
+        padding: 15px; /* Reduce outer padding to save space */
+        margin: 20px 20px;
+    }
+    
+    .dashboard-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .cards-container {
+        flex-direction: column; /* Legacy and Optimized cards stack vertically */
+    }
+
+    .metric-value {
+        font-size: 2rem; /* Shrink numbers slightly */
+    }
+
+    /* Make the technical table scrollable horizontally on tiny screens */
+    #metrics-table-section {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 500px; /* Forces scroll instead of squishing columns */
+    }
+
+    td, th {
+        padding: 10px 8px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Foldable / Ultra Small Devices */
+@media screen and (max-width: 380px) {
+    .dashboard-heading h2 {
+        font-size: 1.2rem;
+    }
+    
+    #url-input {
+        font-size: 0.9rem;
+    }
+}
+  </style>
+</head>
+<body>
+    <div id="ones-nav-placeholder"></div>
+
+   <div class="system-command-center">
+    <div class="dashboard-heading">
+        <div>
+            <h2>Infrastructure Audit</h2>
+            <p>&gt; System Operational: Ready for input</p>
+        </div>
+        <p>TECHNICAL OVERVIEW DASHBOARD</p> 
+    </div>
+
+    <div class="dashboard-row">
+        <div id="system-narrator">
+            <div id="log-content">
+                <div style="color: var(--cyan-glow); margin-bottom: 10px; font-weight: bold; font-size: 0.75rem;">
+                    [ NODE_STATUS: ONLINE ]
+                </div>
+                <div style="font-size: 0.8rem; opacity: 0.7;">ENTER TARGET URL BELOW:</div>
+                <div id="terminal-input-line" style="display:flex; gap:10px; margin-top: 15px; align-items: center; border-bottom: 1px solid var(--slate); padding-bottom: 5px;">
+                    <span style="color: var(--cyan-glow); font-weight: bold;">&gt;</span>
+                    <input type="text" id="url-input" placeholder="https://example.com" style="background:transparent; border:none; color:var(--success-green); outline:none; font-family:monospace; width:100%; font-size: 1rem;">
+                </div>
+            </div>
+        </div>
+
+        <section class="performance-comparison" id="comparison-section">
+            <div class="bench-wrapper">
+                <h3 style="margin: 0; color: #fff; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Live Performance</h3>
+                
+                <div class="cards-container">
+                    <div id="legacy-card" class="data-card-compact">
+                        <span style="font-size: 0.6rem; color: var(--magenta-glow); font-weight: bold;">OLD SYSTEM</span>
+                        <div class="metric-value" style="color: var(--magenta-glow);">--s</div>
+                        <p style="font-size: 0.7rem; color: var(--text-dim); margin: 0;">Slow loading detected.</p>
+                    </div>
+
+                    <div id="optimized-card" class="data-card-compact">
+                        <span style="font-size: 0.6rem; color: var(--success-green); font-weight: bold;">1NESTEP ENGINE</span>
+                        <div class="metric-value" style="color: var(--success-green);">--s</div>
+                        <p style="font-size: 0.7rem; color: var(--text-dim); margin: 0;">Instant response time.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section id="metrics-table-section">
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align: left; color: var(--mauve);">TECHNICAL_TEST</th>
+                    <th style="text-align: left; color: var(--mauve);">RESULT</th>
+                    <th style="text-align: left; color: var(--mauve);">USER_EXPERIENCE</th>
+                </tr>
+            </thead>
+            <tbody id="metrics-body" style="color: white;">
+                <tr>
+                    <td>FIRST_CONTENT_LOAD</td>
+                    <td id="metric-fcp" style="color: var(--cyan-glow);">--</td>
+                    <td style="color: #888;">How fast text appears</td>
+                </tr>
+                <tr>
+                    <td>INTERACTION_DELAY</td>
+                    <td id="metric-tbt" style="color: var(--cyan-glow);">--</td>
+                    <td style="color: #888;">How fast buttons click</td>
+                </tr>
+                <tr>
+                    <td>SCREEN_STABILITY</td>
+                    <td id="metric-cls" style="color: var(--cyan-glow);">--</td>
+                    <td style="color: #888;">How smooth page feels</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<section class="roadmap-section">
+    <div style="text-align:center; margin-bottom:60px;">
+        <h2 style="font-size:2.5rem; color:var(--text-color); letter-spacing:-1px;">
+            The <span style="color:var(--mauve)">1nestep</span> Pipeline
+        </h2>
+    </div>
+
+    <div class="roadmap-container">
+        <div class="roadmap-item" data-log="PHASE_1: AUDITING_BUSINESS_LOGIC">
+            <div class="step-circle">01</div>
+            <span style="font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--mauve); font-weight:700;">Diagnostic</span>
+            <h4>System Discovery</h4>
+            <p>Identifying performance leaks and technical debt draining your revenue.</p>
+        </div>
+
+        <div class="roadmap-item" data-log="PHASE_2: DEPLOYING_SCALABLE_UI">
+            <div class="step-circle">02</div>
+            <span style="font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--mauve); font-weight:700;">Construction</span>
+            <h4>Agile Build</h4>
+            <p>High-speed prototyping using React and Next.js for rapid stability.</p>
+        </div>
+
+        <div class="roadmap-item" data-log="PHASE_3: MONITORING_LIVE_ROI">
+            <div class="step-circle">03</div>
+            <span style="font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--mauve); font-weight:700;">Scale</span>
+            <h4>Deployment</h4>
+            <p>Pushing to global edge-servers for sub-second response times worldwide.</p>
+        </div>
+    </div>
+</section>
+
+<section class="tech-strategy" style="padding:80px 10%; padding-top: 10px; padding-bottom: 80px;">
+  <h2 style="text-align:center; color:var(--cyan-glow); margin-bottom:50px;">The 1nestep Ecosystem</h2>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:30px;">
+    <div class="data-card">
+      <i class="fas fa-layer-group" style="color:var(--cyan-glow); font-size:1.5rem; margin-bottom:15px;"></i>
+      <h4 style="margin:10px 0;">Modular Architecture</h4>
+      <p style="font-size:0.85rem; color:var(--text-muted);">We build using modular components for easy updates and growth.</p>
+    </div>
+    <div class="data-card">
+      <i class="fas fa-server" style="color:var(--cyan-glow); font-size:1.5rem; margin-bottom:15px;"></i>
+      <h4 style="margin:10px 0;">Edge Computing</h4>
+      <p style="font-size:0.85rem; color:var(--text-muted);">Global edge servers ensure content is physically closer to your users.</p>
+    </div>
+    <div class="data-card">
+      <i class="fas fa-shield-halved" style="color:var(--cyan-glow); font-size:1.5rem; margin-bottom:15px;"></i>
+      <h4 style="margin:10px 0;">Zero-Trust Security</h4>
+      <p style="font-size:0.85rem; color:var(--text-muted);">Security is baked into the code to protect user data with encryption standards.</p>
+    </div>
+  </div>
+</section>
+
+<section id="analysis-results">
+  <div style="text-align:center; margin-bottom:30px;"><h3 style="color:var(--cyan-glow); text-transform:uppercase; letter-spacing:3px;">Audit Summary</h3></div>
+  <div style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:20px;">
+    <div class="result-metric">
+      <span style="display:block; color:var(--text-muted); font-size:0.8rem;">Current Health</span>
+      <div id="health-score" style="font-size:2.5rem; font-weight:bold; color:#ff2e63;">--%</div>
+    </div>
+    <div class="result-metric">
+      <span style="display:block; color:var(--text-muted); font-size:0.8rem;">Potential Speedup</span>
+      <div id="speed-gain" style="font-size:2.5rem; font-weight:bold; color:var(--success-green);">+--%</div>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:40px; display:flex; justify-content:center; gap:20px;">
+    <button class="holographic-btn" onclick="shareResults()" style="background:var(--cyan-glow); color:#000; padding:12px 25px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Share Report</button>
+  </div>
+</section>
+<section id="contact" style="padding: 100px 10%; border-top: 1px solid rgba(0, 210, 255, 0.1); background: rgba(0,0,0,0.2);">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 50px;">
+      <span style="color: var(--cyan-glow); font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase;">[ Communication_Uplink ]</span>
+      <h2 style="font-size: 2.5rem; margin-top: 15px; letter-spacing: -1px;">Human Interface Node</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 50px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 30px;">
+        <div class="data-card" style="border-left: 4px solid var(--cyan-glow);">
+          <h4 style="color: var(--cyan-glow); margin-bottom: 10px;">Direct Encryption</h4>
+          <p style="font-family: 'Courier New', monospace; font-size: 1.1rem;">info@1nestep.in</p>
+        </div>
+        <div class="data-card" style="border-left: 4px solid var(--success-green);">
+          <h4 style="color: var(--success-green); margin-bottom: 10px;">Operational Status</h4>
+          <p style="font-size: 0.9rem; color: var(--text-muted);">24/7 Monitoring // Global Edge Deployment Enabled</p>
+        </div>
+      </div>
+
+      <div class="data-card" style="background: rgba(13, 17, 23, 0.8); border: 1px solid var(--cyan-glow);">
+        <form id="cyber-contact-form">
+          <div style="margin-bottom: 20px;">
+            <label class="form-label">IDENTIFIER</label>
+            <input type="text" name="name" id="contact-name" placeholder="YOUR_NAME" required class="cyber-input">
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label class="form-label">RETURN_PATH</label>
+            <input type="email" name="email" id="contact-email" placeholder="EMAIL_ADDRESS" required class="cyber-input">
+          </div>
+          <div style="margin-bottom: 25px;">
+            <label class="form-label">MISSION_OBJECTIVE</label>
+            <textarea name="message" id="contact-msg" rows="4" placeholder="DESCRIBE_YOUR_STARTUP_BOTTLENECK..." required class="cyber-input" style="resize: none;"></textarea>
+          </div>
+          <button type="submit" class="btn-nav" style="width: 100%; padding: 15px; border-radius: 5px; cursor: pointer;">
+            TRANSMIT_DATA
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 1nestep Startup Agency. All rights reserved.
+</footer>
+
+<script src="ones-nav.js"></script>
+<script>
+  
+
+  // CORE LOGIC & TERMINAL
+  const CONFIG = {
+      API_KEY: "AIzaSyAI_3ZQh0WkJ3_AMuncm0alwAJp4j8VGsM",
+      COOLDOWN_TIME: 60, 
+      TARGET_LCP: 0.8,   
+      URL_PATTERN: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,63})([\/\w\.\-~:?&=#%+]*)*\/?$/i
+  };
+
+  const logContent = document.getElementById('log-content');
+
+  function addLogLine(text, color = "white") {
+    const inputLine = document.getElementById('terminal-input-line');
+    const div = document.createElement('div');
+    div.style.color = color;
+    div.style.marginBottom = "5px";
+    div.innerHTML = `<span style="opacity: 0.5;">[${new Date().toLocaleTimeString()}]</span> ${text}`;
+    logContent.insertBefore(div, inputLine);
+    const narrator = document.getElementById('system-narrator');
+    narrator.scrollTop = narrator.scrollHeight;
+  }
+
+  document.getElementById('url-input').addEventListener('keypress', async function (e) {
+    if (e.key !== 'Enter') return;
+    let targetUrl = this.value.trim();
+    if (!CONFIG.URL_PATTERN.test(targetUrl)) {
+      addLogLine("ERROR: INVALID_DOMAIN_FORMAT.", "#ff2e63");
+      return;
+    }
+    
+    if (!targetUrl.startsWith('http')) targetUrl = 'https://' + targetUrl;
+    this.disabled = true;
+
+    addLogLine("> TARGET_LOCKED: " + targetUrl, "white");
+    addLogLine("> INITIATING_DEEP_SCAN...", "var(--cyan-glow)");
+
+    try {
+      const apiURL = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&category=PERFORMANCE&key=${CONFIG.API_KEY}`;
+      const response = await fetch(apiURL);
+      const data = await response.json();
+      const audits = data?.lighthouseResult?.audits;
+
+      if (audits) {
+        const lcp = audits['largest-contentful-paint'].numericValue / 1000;
+        updateUIWithRealData(lcp, targetUrl, data);
+      }
+    } catch (e) {
+      addLogLine("ERROR: SCAN_INTERRUPTED.", "#ff2e63");
+    } finally {
+      this.disabled = false;
+      this.value = "";
+    }
+  });
+
+  function updateUIWithRealData(realSpeed, domain, data) {
+    document.getElementById('comparison-section').style.display = 'block';
+    document.getElementById('analysis-results').style.display = 'block';
+    document.getElementById('metrics-table-section').style.display = 'block';
+
+    const audits = data?.lighthouseResult?.audits;
+    document.getElementById('metric-fcp').innerText = audits['first-contentful-paint']?.displayValue || "N/A";
+    document.getElementById('metric-tbt').innerText = audits['total-blocking-time']?.displayValue || "N/A";
+    document.getElementById('metric-cls').innerText = audits['cumulative-layout-shift']?.displayValue || "N/A";
+
+    document.querySelector('#legacy-card .metric-value').innerText = `${realSpeed.toFixed(1)}s`;
+    document.querySelector('#optimized-card .metric-value').innerText = `0.8s`;
+
+    const healthScore = Math.max(0, Math.min(100, Math.round((1 - (realSpeed / 10)) * 100)));
+    document.getElementById('health-score').innerText = `${healthScore}%`;
+    document.getElementById('speed-gain').innerText = `+${Math.round((realSpeed / 0.8) * 100)}%`;
+
+    addLogLine(`> AUDIT_COMPLETE FOR ${domain.toUpperCase()}`, "var(--success-green)");
+    document.getElementById('comparison-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const logMsg = entry.target.getAttribute('data-log');
+        if (logMsg) addLogLine(`> RE-SCANNING: ${logMsg}`, "var(--cyan-glow)");
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.roadmap-item').forEach(item => observer.observe(item));
+
+  function shareResults() {
+    alert("Audit report generated and ready for download.");
+  }
+  document.getElementById('cyber-contact-form').addEventListener('submit', () => {
+    addLogLine("SUCCESS: DATA_PACKET_TRANSMITTED_TO_CENTRAL_CORE.", "var(--success-green)");
+});
+// Initialize EmailJS
+(function() {
+    // [Action Required]: Replace "YOUR_PUBLIC_KEY" with your actual key
+    emailjs.init("YOUR_PUBLIC_KEY"); 
+})();
+
+document.getElementById('cyber-contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const btn = form.querySelector('button');
+    const name = document.getElementById('contact-name').value.toUpperCase();
+    
+    // 1. Start Terminal Sequence
+    btn.disabled = true;
+    btn.innerText = "UPLOADING...";
+    
+    addLogLine(`> INBOUND_SIGNAL_DETECTED: FROM ${name}`, "var(--cyan-glow)");
+    
+    setTimeout(() => {
+        addLogLine("> ENCRYPTING_DATA_PACKETS...", "white");
+        addLogLine("> INITIATING_SECURE_UPLINK...", "var(--cyan-glow)");
+    }, 600);
+
+    // 2. Transmit via EmailJS
+    // [Action Required]: Replace IDs with your specific Service and Template IDs
+    emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', form)
+        .then(function() {
+            // SUCCESS SEQUENCE
+            addLogLine("> HANDSHAKE_SUCCESSFUL. DATA_RELAY_COMPLETE.", "var(--success-green)");
+            addLogLine("> MISSION_LOG_UPDATED. STANDBY FOR AGENT RESPONSE.", "var(--cyan-glow)");
+            
+            btn.innerText = "TRANSMIT_SUCCESS";
+            btn.style.borderColor = "var(--success-green)";
+            btn.style.color = "var(--success-green)";
+            
+            // Show alert and reset after a short delay
+            setTimeout(() => {
+                alert("Transmission Received. Our agents will reach out via the provided Return_Path.");
+                form.reset();
+                btn.disabled = false;
+                btn.innerText = "TRANSMIT_DATA";
+                btn.style.borderColor = "var(--cyan-glow)";
+                btn.style.color = "var(--cyan-glow)";
+                document.getElementById('system-narrator').scrollIntoView({ behavior: 'smooth' });
+            }, 1000);
+
+        }, function(error) {
+            // ERROR SEQUENCE
+            addLogLine("> ERROR: UPLINK_REJECTED. PACKET_LOSS_DETECTED.", "#ff2e63");
+            console.error('EmailJS Error:', error);
+            btn.disabled = false;
+            btn.innerText = "RETRY_TRANSMISSION";
+        });
+});
+</script>
+</body>
+</html>
