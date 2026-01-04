@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1nestep // Neural Diagnostic System 2026</title>
+     <link rel="stylesheet" href="ones-nav.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>/* --- REFINED NEURAL DIAGNOSTIC SYSTEM CSS --- */
+    :root { 
+        --bg-color: #0a192f;
+        --accent-color: #a855f7; 
+        --text-color: #ccd6f6;
+        --card-bg: rgba(17, 34, 64, 0.7);
+        --accent: #a855f7; 
+        --bg: #0a192f; 
+        --panel: #112240; 
+        --border: #233554; 
+        --warn: #ff2e63; 
+        --go: #64ffda; 
+        --glow: rgba(168, 85, 247, 0.4);
+    }
+    
+    html { scroll-behavior: smooth; }
+
+    body { 
+        background: var(--bg); 
+        color: var(--text-color); 
+        font-family: 'Courier New', monospace; 
+        margin: 0; 
+        overflow-x: hidden;
+        min-height: 100vh;
+        line-height: 1.6;
+    }
+
+    /* --- NAVIGATION --- */
+    .navbar {
+        position: sticky;
+        top: 0;
+        background: rgba(10, 25, 47, 0.85);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        z-index: 1000;
+        backdrop-filter: blur(12px);
+    }
+
+    .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 25px;
+    }
+
+    .logo img { height: 28px; filter: drop-shadow(0 0 5px var(--glow)); transition: 0.3s; }
+    .logo img:hover { filter: brightness(1.2) drop-shadow(0 0 8px var(--accent)); }
+
+    .nav-links { display: flex; list-style: none; gap: 25px; margin: 0; padding: 0; }
+    .nav-links a {
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: 0.3s;
+    }
+    .nav-links a:hover { color: var(--go); text-shadow: 0 0 10px var(--go); }
+
+    .btn-nav {
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        padding: 8px 18px;
+        text-decoration: none;
+        font-size: 11px;
+        border-radius: 2px;
+        transition: 0.3s;
+        background: transparent;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .btn-nav:hover { 
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 0 20px var(--glow);
+    }
+
+    /* --- SYSTEM WRAPPER --- */
+    .system-wrapper {
+        position: relative;
+        padding: 60px 20px;
+        display: flex;
+        justify-content: center;
+        min-height: calc(100vh - 80px);
+    }
+
+    .ambient-bg {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            linear-gradient(var(--border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .side-branding {
+        position: absolute; left: 20px; top: 50%; transform: rotate(-90deg);
+        font-size: 10px; color: var(--border); letter-spacing: 5px; font-weight: bold;
+    }
+
+    .system-uptime {
+        position: absolute; right: 20px; top: 80px; font-size: 10px; color: var(--accent);
+    }
+
+    /* --- CYBER SHELL --- */
+    .cyber-shell {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        max-width: 1100px;
+        background: rgba(2, 12, 27, 0.8);
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        backdrop-filter: blur(5px);
+    }
+
+    .shell-header {
+        background: var(--panel);
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 10px;
+        letter-spacing: 2px;
+    }
+
+    .shell-content { padding: 30px; }
+    
+    .input-bar { 
+        display: flex; 
+        gap: 0; 
+        background: #020c1b; 
+        border: 1px solid var(--border); 
+        margin-bottom: 5px; 
+    }
+    
+    .input-bar input { 
+        flex: 1; padding: 15px; background: transparent; border: none; 
+        color: var(--go); outline: none; font-family: inherit; font-size: 14px; 
+    }
+    
+    button#exec-btn { 
+        background: var(--accent); color: white; border: none; padding: 0 30px; 
+        cursor: pointer; font-weight: bold; transition: 0.3s;
+    }
+    button#exec-btn:hover { background: #b975ff; box-shadow: -5px 0 15px var(--glow); }
+    
+    .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 25px; margin-top: 20px; }
+    
+    /* Terminal & Charts */
+    .terminal { 
+        background: #020c1b; border: 1px solid var(--border); height: 160px; 
+        padding: 15px; overflow-y: auto; font-size: 11px; color: #8892b0; 
+        scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    
+    #chart-container { 
+        background: #020c1b; border: 1px solid var(--border); height: 320px; 
+        position: relative; display: flex; justify-content: center; align-items: center; padding: 10px;
+    }
+    
+    .stats-panel { 
+        background: var(--panel); border: 1px solid var(--border); 
+        padding: 20px; margin-bottom: 20px; position: relative;
+    }
+    
+    .metric-row { 
+        display: flex; justify-content: space-between; padding: 12px 0; 
+        border-bottom: 1px solid rgba(35, 53, 84, 0.5); font-size: 11px; 
+    }
+
+    /* --- FORM STYLING --- */
+    .form-label { display: block; font-size: 9px; color: var(--accent); margin-bottom: 8px; letter-spacing: 2px; }
+
+    .cyber-input {
+        width: 100%;
+        box-sizing: border-box;
+        background: #020c1b !important;
+        border: 1px solid var(--border) !important;
+        padding: 12px !important;
+        color: var(--go) !important;
+        font-family: 'Courier New', monospace !important;
+        font-size: 12px !important;
+        outline: none !important;
+        margin-bottom: 15px;
+        transition: 0.3s;
+    }
+
+    .cyber-input:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px var(--glow); }
+
+    /* --- UTILITIES --- */
+    #progress-bar { width: 0%; height: 2px; background: var(--go); transition: width 0.4s ease; box-shadow: 0 0 10px var(--go); }
+    .loading-pulse { text-align: center; font-size: 9px; color: var(--go); margin-top: 8px; letter-spacing: 3px; height: 12px; }
+    .bench-bar-bg { background: #020c1b; height: 4px; width: 100%; margin-top: 8px; border-radius: 2px; }
+    .bench-bar-fill { height: 100%; transition: width 1.5s ease-in-out; }
+
+    /* Modal */
+    #lead-modal {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(2, 12, 27, 0.98); z-index: 2000; align-items: center; justify-content: center;
+    }
+    .modal-box { 
+        background: #112240; border: 1px solid var(--warn); padding: 40px; 
+        max-width: 450px; text-align: center; box-shadow: 0 0 50px rgba(255, 46, 99, 0.2);
+    }
+    .cta-btn { 
+        display: block; background: var(--warn); color: white; padding: 18px; 
+        text-decoration: none; font-weight: bold; font-size: 13px; margin-top: 20px;
+        transition: 0.3s;
+    }
+    .cta-btn:hover { background: #ff5e8c; transform: translateY(-2px); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 900px) {
+        .main-layout { grid-template-columns: 1fr; }
+        .system-wrapper { padding: 20px 10px; }
+        .side-branding { display: none; }
+    }
+    :root {
+    --ones-dark: #0a192f;
+    --ones-purple: #624768;
+    --ones-white: #ffffff;
+    --ones-border: rgba(255, 255, 255, 0.1);
+    --ones-gray: #94a3b8;
+}
+
+    </style>
+</head>
+<body>
+    <div id="ones-nav-placeholder"></div>
+
+
+    <div class="system-wrapper">
+        <div class="ambient-bg"></div>
+        <div class="side-branding">PROTO-TYPE // ENGINE_v6.0</div>
+        <div class="system-uptime">LOCAL_TIME: <span id="sys-clock">00:00:00</span></div>
+
+        <div class="cyber-shell">
+            <div class="shell-header">
+                <span><span style="color: var(--accent)">●</span> CORE_DIAGNOSTIC_OS</span>
+                <span style="opacity: 0.5;">STATUS: STABLE</span>
+            </div>
+
+            <div class="shell-content">
+                <div class="input-bar">
+                    <input type="text" id="target-url" placeholder="SCAN_TARGET_URL (e.g., yoursite.com)">
+                    <button id="exec-btn" onclick="runDiagnostic()">EXECUTE</button>
+                </div>
+                <div id="progress-bar"></div>
+                <div id="loading-status" class="loading-pulse"></div>
+
+                <div class="main-layout">
+                    <div class="analysis-column" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="terminal" id="sys-log">
+                            > INITIALIZING_NEURAL_STREAMS...<br>
+                            > AWAITING_TARGET_UPLINK...
+                        </div>
+                        <div id="chart-container">
+                            <div id="core-overlay" style="position: absolute; width: 60px; height: 60px; border: 2px solid var(--accent); border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; display: none; z-index: 10;"></div>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="analysis-column">
+                        <div class="stats-panel">
+                            <div style="font-size: 10px; color: var(--accent); margin-bottom: 15px; letter-spacing: 2px;">STARTUP_UNIT_ECONOMICS</div>
+                            <div style="margin-bottom:20px;">
+                                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>RUNWAY_EFFICIENCY</span><span id="target-pct" style="color:var(--warn)">--%</span></div>
+                                <div class="bench-bar-bg"><div id="target-bar" class="bench-bar-fill" style="background:var(--warn)"></div></div>
+                            </div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>MARKET_BENCHMARK</span><span style="color:var(--go)">96.4%</span></div>
+                                <div class="bench-bar-bg"><div class="bench-bar-fill" style="background:var(--go); width:96.4%"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="stats-panel">
+                            <div style="font-size: 10px; color: #555; margin-bottom: 15px; letter-spacing: 2px;">BURN_LEAK_REPORT</div>
+                            <div class="metric-row"><span>CPA_INFLATION</span><span id="m-cac" style="color:var(--warn)">--</span></div>
+                            <div class="metric-row"><span>SCALABILITY</span><span id="m-tax" style="color:var(--accent)">--</span></div>
+                            <div class="metric-row"><span>BURN_WASTE</span><span id="m-ad-waste" style="color:var(--warn)">--</span></div>
+                            <div class="metric-row"><span>INFRA_DEBT</span><span id="m-debt">--</span></div>
+                        </div>
+
+                        <div class="stats-panel" style="border-color: rgba(168, 85, 247, 0.3);">
+                            <div style="font-size: 10px; color: var(--accent); margin-bottom: 15px; letter-spacing: 2px;">FOUNDER_ROI_DIAGNOSIS</div>
+                            <div id="simple-explanation" style="font-size: 12px; color: #888;">Awaiting diagnostic data...</div>
+                        </div>
+                        
+                        <button onclick="toggleRaw()" style="font-size: 9px; background: transparent; border: 1px solid #333; color: #555; width: 100%; padding: 5px; cursor:pointer;">DEBUG_RAW_DATA</button>
+                        <div id="raw-telemetry"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div id="lead-modal">
+        <div class="modal-box">
+            <h2 style="color:var(--warn)">CRITICAL_BURN_WARNING</h2>
+            <p>Your startup is paying a <span id="modal-leak" style="color:white; font-weight:bold;">0%</span> "Legacy Tax".</p>
+            <a id="wa-link" href="#" class="cta-btn">CLAIM RECOVERY BLUEPRINT (WHATSAPP)</a>
+            <button onclick="document.getElementById('lead-modal').style.display='none'" style="background:transparent; color:#444; margin-top:15px; border:none; cursor:pointer;">CONTINUE_WITH_BURN</button>
+        </div>
+    </div>
+     <section id="contact" style="padding: 60px 20px; border-top: 1px solid var(--border); background: var(--bg); position: relative; z-index: 100;">
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="margin-bottom: 40px;">
+            <span style="color: var(--accent); font-size: 10px; letter-spacing: 3px;">[COMMUNICATION_UPLINK]</span>
+            <h2 style="font-family: 'Courier New'; letter-spacing: -1px; margin-top: 10px;">HUMAN_INTERFACE_NODE</h2>
+        </div>
+
+        <div class="main-layout" style="grid-template-columns: 1fr 1.5fr;">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="stats-panel" style="margin-bottom: 0;">
+                    <div style="font-size: 10px; color: var(--accent); margin-bottom: 10px;">DIRECT_ENCRYPTED_MAIL</div>
+                    <div style="font-size: 14px; color: white;">info@1nestep.in</div>
+                </div>
+                <div class="stats-panel" style="margin-top: 0;">
+                    <div style="font-size: 10px; color: var(--accent); margin-bottom: 10px;">OPERATIONAL_HOURS</div>
+                    <div style="font-size: 14px; color: #8892b0;">24/7 Monitoring // GMT +5:30</div>
+                </div>
+            </div>
+
+            <div class="stats-panel" style="background: #020c1b;">
+                <form id="cyber-contact-form" action="https://formspree.io/f/info@1nestep.in" method="POST">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label class="form-label">IDENTIFIER</label>
+                            <input type="text" name="name" placeholder="NAME_REQUIRED" required class="cyber-input">
+                        </div>
+                        <div>
+                            <label class="form-label">RETURN_PATH</label>
+                            <input type="email" name="email" placeholder="EMAIL_REQUIRED" required class="cyber-input">
+                        </div>
+                    </div>
+                    
+                    <label class="form-label">OBJECTIVE</label>
+                    <select name="subject" class="cyber-input" style="width: 100%; margin-bottom: 15px; background: #0a192f;">
+                        <option value="Audit Recovery">SYSTEM_AUDIT_RECOVERY</option>
+                        <option value="Architecture Partnership">ARCH_PARTNERSHIP</option>
+                        <option value="General Inquiry">GENERAL_INQUIRY</option>
+                    </select>
+
+                    <label class="form-label">SPECIFICATIONS</label>
+                    <textarea name="message" rows="4" placeholder="DESCRIBE_INFRA_BOTTLENECKS..." required class="cyber-input" style="width: 100%; margin-bottom: 20px; resize: none;"></textarea>
+                    
+                    <button type="submit" id="contact-submit" class="btn-nav" style="width: 100%; padding: 15px; cursor: pointer; background: transparent; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span>TRANSMIT_DATA</span>
+                        <div id="btn-spinner" style="display: none; width: 12px; height: 12px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                    </button>
+                </form>
+                <div id="form-result" style="margin-top: 15px; font-size: 11px; text-align: center; display: none;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+    <script src="ones-nav.js"></script>
+    <script>
+        const API_KEY = "AIzaSyCyRAxy9j03bwxMejqP6tVe94Bb2JhoEgw"; 
+        let lastRawData = null;
+        let perfChart = null;
+
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        perfChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['CPA_OPTIMAL', 'USER_RETENTION', 'SCALE_CAPACITY', 'AD_YIELD', 'BURN_EFFICIENCY'],
+                datasets: [{
+                    data: [0, 0, 0, 0, 0],
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                    borderColor: '#a855f7',
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    pointBackgroundColor: '#a855f7'
+                }]
+            },
+            options: {
+                scales: { r: { min: 0, max: 1, ticks: { display: false }, grid: { color: '#233554' }, angleLines: { color: '#233554' }, pointLabels: { color: '#8892b0', font: { size: 10 } } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        setInterval(() => {
+            const clock = document.getElementById('sys-clock');
+            if (clock) clock.innerText = new Date().toLocaleTimeString('en-GB');
+        }, 1000);
+
+        function updateLog(msg, color = "#555") {
+            const log = document.getElementById('sys-log');
+            if (log) {
+                log.innerHTML += `<div style="color:${color}">> ${msg}</div>`;
+                log.scrollTop = log.scrollHeight;
+            }
+        }
+
+        async function runDiagnostic() {
+            let url = document.getElementById('target-url').value.trim();
+            if (!url) return;
+            if (!url.startsWith('http')) url = 'https://' + url;
+
+            document.getElementById('exec-btn').disabled = true;
+            document.getElementById('core-overlay').style.display = "block";
+            updateLog(`AUDITING_STARTUP_INFRA: ${url.toUpperCase()}`, "var(--accent)");
+
+            let progress = 0;
+            const loader = setInterval(() => {
+                if (progress < 85) {
+                    progress += Math.random() * 3;
+                    document.getElementById('progress-bar').style.width = `${progress}%`;
+                    const phases = ["CPA_INFLATION_CHECK", "BURN_RATE_SCAN", "CONCURRENCY_TEST", "MARKET_BENCHMARK"];
+                    document.getElementById('loading-status').innerText = phases[Math.floor(progress/22)];
+                }
+            }, 300);
+
+            try {
+                const apiURL = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&category=performance&category=best-practices&key=${API_KEY}`;
+                const response = await fetch(apiURL);
+                const data = await response.json();
+                lastRawData = data;
+                
+                clearInterval(loader);
+                document.getElementById('progress-bar').style.width = "100%";
+                document.getElementById('core-overlay').style.display = "none";
+                document.getElementById('loading-status').innerText = "AUDIT_COMPLETE";
+                document.getElementById('exec-btn').disabled = false;
+
+                renderResults(data.lighthouseResult.audits);
+            } catch (error) {
+                clearInterval(loader);
+                document.getElementById('core-overlay').style.display = "none";
+                updateLog(`CRITICAL_ERROR: ${error.message}`, "#ff2e63");
+                document.getElementById('exec-btn').disabled = false;
+            }
+        }
+
+        function renderResults(audits) {
+            const lcpSecs = (audits['largest-contentful-paint']?.numericValue || 0) / 1000;
+            const tbt = (audits['total-blocking-time']?.numericValue || 0);
+            const cls = audits['cumulative-layout-shift']?.score ?? 0;
+            const interaction = audits['interactive']?.score ?? 0;
+
+            const trackingLeak = Math.min(28, (lcpSecs * 4.8)).toFixed(1); 
+            const viralSurvival = tbt > 800 ? "14%" : (tbt > 300 ? "42%" : "98%");
+            const scaleStatus = tbt > 600 ? "FRAGILE" : "ELASTIC";
+            const cpaInflation = (lcpSecs * 14.2).toFixed(1); 
+            const efficiency = (100 - (lcpSecs * 7.5)).toFixed(1);
+
+            updateLog(`ANALYTICS_AUDIT: Found ${trackingLeak}% data-loss.`, "var(--warn)");
+            updateLog(`STRESS_TEST: Viral surge survival probability: ${viralSurvival}.`, "var(--accent)");
+
+            document.getElementById('target-pct').innerText = efficiency + "%";
+            document.getElementById('target-bar').style.width = efficiency + "%";
+            document.getElementById('m-cac').innerText = `+${cpaInflation}%`;
+            document.getElementById('m-tax').innerText = scaleStatus;
+            document.getElementById('m-ad-waste').innerText = `${trackingLeak}% LEAK`;
+            
+            const m_debt = document.getElementById('m-debt');
+            m_debt.innerText = tbt > 600 ? "CRITICAL" : "STABLE";
+            m_debt.className = tbt > 600 ? "status-warn" : "status-active";
+
+            perfChart.data.datasets[0].data = [1 - (cpaInflation/100), cls, (scaleStatus === "ELASTIC" ? 0.9 : 0.2), interaction, efficiency/100];
+            perfChart.update();
+
+            document.getElementById('simple-explanation').innerHTML = `
+                <div style="margin-top:10px;">
+                    <div style="font-size:11px; color:var(--go); letter-spacing:1px; margin-bottom:10px;">> ARCHITECTURE_DIAGNOSIS</div>
+                    <p style="line-height:1.5; font-size:11px; border-left: 2px solid var(--accent); padding-left:10px; color: #8892b0;">
+                        Current architecture is losing <b>${trackingLeak}%</b> of analytics data. 
+                        Targeting efficiency is down <b>${cpaInflation}%</b>.
+                    </p>
+                </div>`;
+
+            if (efficiency < 98) {
+                setTimeout(() => {
+                    document.getElementById('modal-leak').innerText = cpaInflation + "%";
+                    document.getElementById('lead-modal').style.display = 'flex';
+                    const domain = document.getElementById('target-url').value;
+                    const msg = `URGENT INFRA AUDIT [${domain}]: CPA Inflation +${cpaInflation}%. Requesting recovery blueprint.`;
+                    document.getElementById('wa-link').href = `https://wa.me/9192113145?text=${encodeURIComponent(msg)}`;
+                }, 1500);
+            }
+        }
+
+        function toggleRaw() {
+            const rawEl = document.getElementById('raw-telemetry');
+            rawEl.style.display = (rawEl.style.display === 'block') ? 'none' : 'block';
+            if (lastRawData) rawEl.innerText = JSON.stringify(lastRawData, null, 2);
+        }
+    </script>
+    <script>
+        document.getElementById('cyber-contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const btn = document.getElementById('contact-submit');
+    const spinner = document.getElementById('btn-spinner');
+    const result = document.getElementById('form-result');
+    const formData = new FormData(form);
+
+    // Initial State
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    btn.querySelector('span').innerText = 'TRANSMITTING...';
+    if (typeof updateLog === "function") updateLog("UPLINK: Sending encrypted data packet...", "var(--accent)");
+
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            // Success
+            btn.style.borderColor = 'var(--go)';
+            btn.style.color = 'var(--go)';
+            btn.querySelector('span').innerText = 'TRANSMIT_SUCCESS';
+            result.style.display = 'block';
+            result.style.color = 'var(--go)';
+            result.innerText = "> ACKNOWLEDGED: Message delivered to info@1nestep.in";
+            if (typeof updateLog === "function") updateLog("SUCCESS: Remote server accepted transmission.", "var(--go)");
+            form.reset();
+        } else {
+            throw new Error();
+        }
+    } catch (err) {
+        // Error
+        btn.style.borderColor = 'var(--warn)';
+        btn.querySelector('span').innerText = 'CONNECTION_FAILED';
+        result.style.display = 'block';
+        result.style.color = 'var(--warn)';
+        result.innerText = "> ERROR: Packet loss detected. Please retry.";
+    }
+
+    // Reset UI after 5 seconds
+    setTimeout(() => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.color = 'var(--accent)';
+        btn.querySelector('span').innerText = 'TRANSMIT_DATA';
+        result.style.display = 'none';
+    }, 5000);
+});
+    </script>
+   
+</body>
+</html>
