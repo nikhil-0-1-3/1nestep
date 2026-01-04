@@ -22,7 +22,7 @@
         
     }
 
-    .ones-nav-container { display: flex; width: 100%; justify-content: space-between; align-items: center;  padding-left: 130px; padding-right: 150px;}
+    .ones-nav-container { display: flex; width: 100%; justify-content: space-between; align-items: center; }
     .ones-logo-box img { height: 32px; width: auto; display: block; }
     
     .ones-nav-links { display: flex; gap: 25px; list-style: none; align-items: center; }
@@ -134,3 +134,4 @@
     }
 
     @keyframes onesFadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
