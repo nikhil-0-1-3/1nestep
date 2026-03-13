@@ -1,535 +1,1176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Forge | Creation Studio</title>
-    <link rel="stylesheet" href="ones-nav.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #0a192f;
-            --accent-color: #624768;
-            --text-color: #ffffff;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --slate: #345160;
-            --mauve: #8e7d91;
-            --card-border: rgba(255, 255, 255, 0.1);
-            --glow: rgba(98, 71, 104, 0.5);
-            --text-dim: #94a3b8;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 5% 10%, rgba(98, 71, 104, 0.2) 0%, transparent 35%),
-                radial-gradient(circle at 95% 90%, rgba(52, 81, 96, 0.2) 0%, transparent 35%);
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        #cursor-glow {
-            position: fixed;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(98, 71, 104, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 0;
-        }
-
-        /* --- FIXED NAVIGATION --- */
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 6%; position: sticky; top: 0; z-index: 1000;
-            background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .nav-container { display: flex; width: 100%; justify-content: space-between; align-items: center; }
-
-        .logo img { height: 35px; width: auto; display: block; }
-        .logo-mobile { display: none; }
-
-        .nav-links { display: flex; gap: 30px; list-style: none; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text-dim); font-size: 0.85rem; transition: 0.3s; font-weight: 400; }
-        .nav-links a:hover { color: var(--text-color); }
-
-        .nav-actions { display: flex; align-items: center; gap: 15px; }
-
-        /* Mobile Menu Toggle */
-        .menu-toggle { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
-        .menu-toggle .bar { width: 25px; height: 2px; background: var(--text-color); transition: 0.3s; }
-
-        /* --- LAYOUT --- */
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }
-
-        .top-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px; margin-bottom: 60px;
-        }
-
-        .glass-card {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            backdrop-filter: blur(20px); border-radius: 20px; padding: 30px;
-            position: relative; overflow: hidden; transition: 0.3s ease;
-        }
-        .glass-card:hover { border-color: var(--mauve); }
-
-        .section-tag { color: var(--mauve); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; font-weight: 600; display: block; margin-bottom: 15px; }
-        h2 { font-family: 'Montserrat'; margin-bottom: 15px; font-size: 1.6rem; }
-        p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 20px; }
-
-        input[type="text"] {
-            width: 100%; padding: 14px; background: rgba(0,0,0,0.3);
-            border: 1px solid var(--card-border); border-radius: 10px;
-            color: var(--text-color); margin-bottom: 20px; outline: none;
-        }
-
-        .btn-card, .btn-nav {
-            padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 0.85rem;
-        }
-        .btn-card { width: 100%; background: linear-gradient(135deg, var(--accent-color), var(--slate)); border: none; color: var(--text-color); }
-        .btn-nav { background: transparent; border: 1px solid var(--accent-color); color: var(--text-color); text-decoration: none; }
-        .btn-card:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px var(--glow); }
-
-        .main-layout { display: grid; grid-template-columns: 200px 1fr; gap: 40px; }
-
-        .timeline-container { border-left: 1px solid var(--card-border); padding-left: 25px; }
-        .timeline-step { position: relative; margin-bottom: 40px; opacity: 0.3; transition: 0.5s; }
-        .timeline-step.active { opacity: 1; }
-        .timeline-dot { position: absolute; left: -32px; top: 5px; width: 12px; height: 12px; background: var(--accent-color); border-radius: 50%; }
-
-        .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .small-card { padding: 25px; display: flex; flex-direction: column; justify-content: space-between; }
-        
-        #creation-terminal {
-            background: #050b16; height: 180px; border-radius: 8px; border: 1px solid #1a2a44; padding: 15px;
-            font-family: 'Courier New', monospace; font-size: 0.8rem; overflow-y: auto; color: #d1d5db;
-        }
-
-        /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 900px) {
-            .main-layout { grid-template-columns: 1fr; }
-            .timeline-container { 
-                display: flex; border-left: none; padding-left: 0; gap: 20px; 
-                overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px;
-            }
-            .timeline-dot { display: none; }
-            .timeline-step { margin-bottom: 0; min-width: 100px; text-align: center; }
-            
-            .menu-toggle { display: flex; }
-            .nav-links {
-                position: absolute; top: 100%; left: 0; width: 100%; background: var(--bg-color);
-                flex-direction: column; padding: 20px; gap: 20px; 
-                border-bottom: 1px solid var(--card-border); display: none;
-            }
-            .nav-links.active { display: flex; }
-            .logo-desktop { display: none !important; }
-            .logo-mobile { display: block !important; height: 30px !important; }
-        }
-
-        @media (max-width: 600px) {
-            .card-grid { grid-template-columns: 1fr; }
-            .glass-card { padding: 20px; }
-            h2 { font-size: 1.4rem; }
-        }
-
-        /* Animations */
-        .pulse { border-radius: 50%; animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation {
-            0% { box-shadow: 0 0 0 0px rgba(74, 222, 128, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
-            100% { box-shadow: 0 0 0 0px rgba(74, 222, 128, 0); }
-        }
-        /* Contact Section Styles */
-.contact-wrap {
-    padding: 80px 0;
-    max-width: 1000px;
-    margin: 0 auto;
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>Stitch · Tailor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --paper:#F0F4FF;--paper1:#E8EDF8;--paper2:#DFE6F0;--paper3:#D6DEE8;
+  --ink:#1A2D5C;--ink2:#2D4ABC;--ink3:#5A6F9F;--ink4:#8A9FCF;
+  --gold:#4169E1;--gold2:#6B8FE8;--gold3:#2D4ABC;
+  --gold-glow:rgba(65,105,225,.13);--gold-ring:rgba(65,105,225,.26);
+  --green:#2BA057;--green-bg:rgba(43,160,87,.09);--green-ring:rgba(43,160,87,.22);
+  --red:#E53935;--red-bg:rgba(229,57,53,.09);--red-ring:rgba(229,57,53,.2);
+  --amber:#D97706;--amber-bg:rgba(217,119,6,.09);--amber-ring:rgba(217,119,6,.22);
+  --glass:rgba(240,244,255,.95);
+  --r1:4px;--r2:8px;--r3:14px;--r4:18px;--r5:24px;--rx:9999px;
+  --ease:cubic-bezier(.4,0,.2,1);--spring:cubic-bezier(.34,1.56,.64,1);--snap:cubic-bezier(.22,1,.36,1);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:'DM Sans',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{display:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
 
-.contact-header {
-    text-align: center;
-    margin-bottom: 50px;
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px}
+
+#shell{position:fixed;inset:0;display:flex;flex-direction:column}
+
+/* TOP BAR */
+#topbar{flex-shrink:0;padding:calc(max(env(safe-area-inset-top),18px)) 18px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--ink);position:relative;overflow:hidden}
+#topbar::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(65,105,225,.35) 0%,transparent 70%);pointer-events:none}
+.tb-left{display:flex;flex-direction:column;gap:2px;position:relative}
+.tb-greeting{font-size:11px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.45);text-transform:uppercase}
+.tb-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:#fff;line-height:1}
+.tb-name em{font-style:italic;color:var(--gold2)}
+.tb-status-row{display:flex;align-items:center;gap:7px;margin-top:5px}
+.tb-status{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--rx);font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:opacity .15s}
+.tb-status.on{background:rgba(43,160,87,.2);color:#6EE09A;border:1px solid rgba(43,160,87,.3)}
+.tb-status.off{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.tb-dot.pulse{animation:tbpulse 1.6s ease-in-out infinite}
+@keyframes tbpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-right{display:flex;align-items:center;gap:10px;position:relative}
+.notif-btn{position:relative;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .15s var(--spring)}
+.notif-btn:active{transform:scale(.92)}
+.notif-btn.ring{animation:shake .5s var(--spring)}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+.nbadge{position:absolute;top:4px;right:4px;min-width:17px;height:17px;background:var(--red);color:#fff;border-radius:var(--rx);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink);padding:0 3px;animation:popin .3s var(--spring)}
+@keyframes popin{from{transform:scale(0)}to{transform:scale(1)}}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;color:#fff;border:2px solid rgba(255,255,255,.2);cursor:pointer}
+
+/* TABS */
+#tabs{flex-shrink:0;display:flex;background:var(--ink);border-bottom:1px solid rgba(255,255,255,.07);padding:0 6px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px 10px;cursor:pointer;position:relative;color:rgba(255,255,255,.35);font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.tab-ic{font-size:20px;line-height:1}
+.tab.on{color:#fff}
+.tab::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--gold2);border-radius:2px 2px 0 0;opacity:0;transition:opacity .2s}
+.tab.on::after{opacity:1}
+.tab-badge{position:absolute;top:5px;right:calc(50% - 18px);min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:var(--rx);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink);padding:0 3px}
+
+/* PAGES */
+#pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .25s var(--ease),transform .25s var(--ease)}
+.page.on{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--ink4);text-transform:uppercase;padding:0 18px;margin-bottom:10px;margin-top:20px;display:flex;align-items:center;gap:8px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--paper2)}
+
+/* ORDER CARD */
+.ocard{margin:0 14px 12px;background:#fff;border-radius:var(--r5);box-shadow:0 2px 16px rgba(26,45,92,.09);border:1.5px solid var(--paper2);overflow:hidden;transition:transform .18s var(--ease)}
+.ocard:active{transform:scale(.985)}
+.ocard.new-order{border-color:var(--gold-ring);box-shadow:0 0 0 3px var(--gold-glow),0 2px 16px rgba(26,45,92,.09)}
+.ocard.urgent{border-color:var(--amber-ring);box-shadow:0 0 0 3px var(--amber-bg),0 4px 24px rgba(26,45,92,.12)}
+.ocard-stripe{height:4px;width:100%}
+.stripe-new{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.stripe-progress{background:linear-gradient(90deg,var(--amber),#F59E0B)}
+.stripe-done{background:linear-gradient(90deg,var(--green),#52C98A)}
+.stripe-cancelled{background:var(--paper3)}
+.ocard-hd{padding:14px 16px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ocard-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4);margin-bottom:4px}
+.ocard-svc{font-size:17px;font-weight:700;color:var(--ink);line-height:1.2}
+.ocard-cat{display:inline-flex;align-items:center;gap:4px;margin-top:4px;background:var(--paper1);border-radius:var(--rx);padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--ink3)}
+.ocard-time{text-align:right;flex-shrink:0}
+.ocard-due-lbl{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--ink4);text-transform:uppercase}
+.ocard-due{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);line-height:1.1;margin-top:2px}
+.ocard-due.urgent-t{color:var(--amber)}
+
+/* CUSTOMER BLOCK — THE STAR */
+.cust-block{margin:0 16px 12px;background:var(--ink);border-radius:var(--r3);padding:14px 16px;position:relative;overflow:hidden}
+.cust-block::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 0% 100%,rgba(65,105,225,.4) 0%,transparent 60%);pointer-events:none}
+.cb-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:8px}
+.cb-name{font-size:18px;font-weight:700;color:#fff;margin-bottom:2px}
+.cb-phone{font-family:'DM Mono',monospace;font-size:15px;color:var(--gold2);display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.cb-addr{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
+.cb-addr strong{color:#fff;display:block;margin-bottom:2px}
+.cb-actions{display:flex;gap:8px;margin-top:10px}
+.cb-act{flex:1;padding:9px;border-radius:var(--r2);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity .15s}
+.cb-act:active{opacity:.75}
+.cb-call{background:rgba(43,160,87,.2);color:#6EE09A;border:1px solid rgba(43,160,87,.3)}
+.cb-map{background:rgba(65,105,225,.2);color:var(--gold2);border:1px solid rgba(65,105,225,.3)}
+
+/* DETAIL ROWS */
+.ocard-details{padding:0 16px 14px;display:flex;flex-direction:column;gap:8px}
+.detail-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--paper1);border-radius:var(--r2)}
+.dr-lbl{font-size:11px;color:var(--ink3);font-weight:500}
+.dr-val{font-size:13px;font-weight:700;color:var(--ink)}
+.dr-val.amt{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold3)}
+.dr-val.urgent-t{color:var(--amber)}
+
+/* NOTES */
+.notes-block{margin:0 16px 14px;padding:12px 14px;background:var(--amber-bg);border:1.5px solid var(--amber-ring);border-radius:var(--r3)}
+.nb-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--amber);text-transform:uppercase;margin-bottom:5px}
+.nb-txt{font-size:13px;color:var(--ink);line-height:1.6}
+
+/* URGENCY */
+.urgency-banner{margin:8px 14px 0;padding:10px 14px;background:var(--amber-bg);border:1.5px solid var(--amber-ring);border-radius:var(--r3);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--amber)}
+
+/* TIMER */
+.timer-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--red-bg);border-radius:var(--r2);border:1px solid var(--red-ring);margin:0 16px 12px}
+.timer-lbl{font-size:11px;color:var(--red);font-weight:700;flex:1}
+.timer-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--red)}
+
+/* ACTION BUTTONS */
+.action-strip{padding:0 14px 16px;display:flex;gap:10px}
+.act-main{flex:1;padding:14px;border-radius:var(--r4);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .18s var(--spring),opacity .15s;letter-spacing:.2px}
+.act-main:active{transform:scale(.96)}
+.act-accept{background:var(--green);color:#fff;box-shadow:0 4px 20px rgba(43,160,87,.3)}
+.act-done{background:var(--ink);color:#fff;box-shadow:0 4px 20px rgba(26,45,92,.3)}
+.act-ghost{padding:14px 16px;border-radius:var(--r4);font-size:13px;font-weight:600;color:var(--ink3);background:var(--paper1);border:1.5px solid var(--paper2)}
+.act-ghost:active{opacity:.7}
+
+/* STATUS BADGE */
+.sbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--rx);font-size:10px;font-weight:700;letter-spacing:.3px}
+.sb-new{background:var(--gold-glow);color:var(--gold3);border:1px solid var(--gold-ring)}
+.sb-progress{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-ring)}
+.sb-done{background:var(--green-bg);color:var(--green);border:1px solid var(--green-ring)}
+.sb-cancel{background:var(--red-bg);color:var(--red);border:1px solid var(--red-ring)}
+.sd{width:5px;height:5px;border-radius:50%;background:currentColor}
+.sd.pulse{animation:tbpulse 1.4s infinite}
+
+/* ── NOTIFICATION HUB (bell icon) — bigger ── */
+#notif-bg{position:fixed;inset:0;z-index:800;background:rgba(26,45,92,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .28s;display:flex;flex-direction:column;justify-content:flex-end}
+#notif-bg.in{opacity:1;pointer-events:all}
+#notif-drawer{background:var(--paper);border-radius:28px 28px 0 0;max-height:88vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .38s var(--snap);box-shadow:0 -8px 60px rgba(26,45,92,.22)}
+#notif-bg.in #notif-drawer{transform:translateY(0)}
+.nd-handle{width:44px;height:5px;background:var(--paper3);border-radius:99px;margin:14px auto 2px;flex-shrink:0}
+.nd-hd{padding:12px 22px 16px;border-bottom:1.5px solid var(--paper2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.nd-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--ink);line-height:1}
+.nd-title em{font-style:italic;color:var(--gold)}
+.nd-title-sub{font-size:12px;color:var(--ink4);margin-top:3px;font-weight:600}
+.nd-close{width:36px;height:36px;border-radius:50%;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink3)}
+.nd-close:active{transform:scale(.88)}
+.nd-scroll{flex:1;overflow-y:auto;padding:6px 0 24px}
+.notif-item{display:flex;align-items:flex-start;gap:14px;padding:16px 22px;cursor:pointer;transition:background .14s;position:relative}
+.notif-item:active{background:var(--paper1)}
+.notif-item.unread::before{content:'';position:absolute;left:9px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.ni-ic{width:52px;height:52px;border-radius:var(--r3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px}
+.ni-new-order{background:var(--gold-glow);border:1.5px solid var(--gold-ring)}
+.ni-urgent{background:var(--amber-bg);border:1.5px solid var(--amber-ring)}
+.ni-done{background:var(--green-bg);border:1.5px solid var(--green-ring)}
+.ni-txt{flex:1;min-width:0}
+.ni-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.ni-body{font-size:13px;color:var(--ink3);line-height:1.55}
+.ni-time{font-size:11px;color:var(--ink4);margin-top:5px;font-weight:600}
+.ni-act-row{display:flex;gap:8px;margin-top:10px}
+.ni-act{padding:9px 18px;border-radius:var(--rx);font-size:12px;font-weight:700}
+.ni-act.pri{background:var(--ink);color:#fff}
+.ni-act.sec{background:var(--paper2);color:var(--ink3)}
+.nd-clear{display:block;text-align:center;padding:16px;font-size:13px;font-weight:700;color:var(--ink4);cursor:pointer;border-top:1.5px solid var(--paper2);margin-top:4px;letter-spacing:.3px}
+.nd-clear:active{opacity:.6}
+.notif-divider{height:1px;background:var(--paper2);margin:2px 22px}
+
+/* ══════════════════════════════════════════
+   FULLSCREEN ORDER ARRIVAL — Uber-style
+   Locks the whole screen, forces Accept/Decline
+   Auto-expires after 90s like a real app
+══════════════════════════════════════════ */
+#order-arrival{
+  position:fixed;inset:0;z-index:1100;
+  display:flex;flex-direction:column;
+  background:var(--ink);
+  transform:scale(1.04);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s var(--ease),transform .35s var(--snap);
+  overflow:hidden;
 }
+#order-arrival.in{opacity:1;pointer-events:all;transform:scale(1)}
+/* subtle radial glow top */
+#order-arrival::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(65,105,225,.55) 0%,transparent 62%);pointer-events:none;z-index:0}
 
-.contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 30px;
+/* shrinking progress bar — auto-expire visual */
+.oa-progress-bar{position:relative;height:4px;background:rgba(255,255,255,.1);overflow:hidden;flex-shrink:0;z-index:1}
+.oa-progress-fill{position:absolute;inset:0;background:linear-gradient(90deg,var(--gold2),var(--gold));transform-origin:left;animation:oa-drain 90s linear forwards}
+@keyframes oa-drain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+
+/* pulsing rings behind icon */
+.oa-rings{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.oa-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(65,105,225,.3);animation:oa-ripple 2.4s ease-out infinite}
+.oa-ring:nth-child(2){animation-delay:.8s}
+.oa-ring:nth-child(3){animation-delay:1.6s}
+@keyframes oa-ripple{0%{transform:scale(.7);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.oa-icon{
+  width:80px;height:80px;border-radius:50%;z-index:1;
+  background:rgba(65,105,225,.22);border:2.5px solid rgba(65,105,225,.55);
+  display:flex;align-items:center;justify-content:center;font-size:34px;
+  animation:oa-pop .5s var(--spring) .1s both;
 }
+@keyframes oa-pop{from{transform:scale(0) rotate(-15deg)}to{transform:scale(1) rotate(0)}}
 
-.info-column {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+/* header area */
+.oa-top{
+  flex-shrink:0;z-index:1;
+  padding:calc(max(env(safe-area-inset-top),18px)) 20px 0;
+  text-align:center;
 }
-
-.info-box {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 20px !important;
+.oa-incoming-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(65,105,225,.18);border:1px solid rgba(65,105,225,.4);
+  border-radius:var(--rx);padding:6px 16px;
+  font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold2);
+  margin-bottom:16px;
+  animation:oa-down .4s var(--snap) .05s both;
 }
+.oa-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--gold2);animation:tbpulse 1s infinite}
+@keyframes oa-down{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes oa-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-.info-box i {
-    font-size: 1.5rem;
-    color: var(--mauve);
+/* countdown timer */
+.oa-countdown{
+  font-family:'DM Mono',monospace;font-size:13px;font-weight:500;
+  color:rgba(255,255,255,.35);letter-spacing:1px;
+  margin-top:8px;margin-bottom:20px;
+  animation:oa-down .4s var(--snap) .1s both;
 }
+.oa-countdown span{color:var(--red);font-weight:700}
 
-.info-box h4 {
-    font-size: 0.9rem;
-    margin-bottom: 5px;
+/* scrollable body */
+.oa-body{flex:1;overflow-y:auto;padding:0 18px 0;z-index:1;display:flex;flex-direction:column;gap:12px}
+
+/* headline */
+.oa-headline{
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px;font-weight:500;color:#fff;line-height:1.18;
+  animation:oa-up .38s var(--snap) .12s both;
 }
+.oa-headline em{font-style:italic;color:var(--gold2)}
+.oa-headline small{font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,.35);display:block;letter-spacing:.5px;margin-top:3px;font-weight:600}
 
-.form-box {
-    padding: 40px !important;
+/* service row */
+.oa-svc{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--r4);padding:14px 16px;
+  animation:oa-up .38s var(--snap) .17s both;
 }
+.oa-svc-em{font-size:30px;flex-shrink:0}
+.oa-svc-name{font-size:17px;font-weight:700;color:#fff;flex:1;line-height:1.2}
+.oa-svc-cat{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.oa-svc-amt{text-align:right;flex-shrink:0}
+.oa-svc-amt-val{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold2);line-height:1}
+.oa-svc-amt-earn{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px}
 
-.input-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+/* ── BIG ADDRESS BLOCK — the most important thing ── */
+.oa-addr{
+  background:rgba(255,255,255,.06);
+  border:2px solid var(--gold2);
+  border-radius:var(--r4);padding:16px 18px;
+  position:relative;overflow:hidden;
+  animation:oa-up .38s var(--snap) .22s both;
 }
-
-/* Form Elements Styling */
-#simple-contact-form input, 
-#simple-contact-form select, 
-#simple-contact-form textarea {
-    width: 100%;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--card-border);
-    border-radius: 10px;
-    color: white;
-    font-family: 'Inter', sans-serif;
-    margin-bottom: 20px;
-    outline: none;
-    transition: 0.3s;
+.oa-addr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold2);border-radius:0}
+.oa-addr-lbl{
+  font-size:9px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold2);display:flex;align-items:center;gap:7px;margin-bottom:9px;
 }
+.oa-addr-dot{width:7px;height:7px;border-radius:50%;background:var(--gold2);animation:tbpulse 1.4s infinite}
+.oa-addr-main{font-size:20px;font-weight:700;color:#fff;line-height:1.3}
+.oa-addr-land{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.38);margin-top:6px}
 
-#simple-contact-form input:focus, 
-#simple-contact-form textarea:focus {
-    border-color: var(--mauve);
-    background: rgba(0, 0, 0, 0.4);
+/* customer */
+.oa-cust{
+  display:flex;align-items:center;gap:13px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r3);padding:13px 16px;
+  animation:oa-up .38s var(--snap) .27s both;
 }
-
-#submit-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+.oa-cust-av{
+  width:46px;height:46px;border-radius:50%;flex-shrink:0;
+  background:var(--gold);border:2px solid rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:22px;color:#fff;
 }
-
-.hidden { display: none; }
-
-#form-status {
-    margin-top: 20px;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 0.85rem;
+.oa-cust-name{font-size:16px;font-weight:700;color:#fff}
+.oa-cust-ph{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold2);margin-top:3px}
+.oa-cust-call{
+  margin-left:auto;flex-shrink:0;
+  padding:10px 16px;border-radius:var(--r2);
+  background:rgba(43,160,87,.2);border:1px solid rgba(43,160,87,.35);
+  font-size:13px;font-weight:700;color:#6EE09A;cursor:pointer;transition:opacity .15s;
 }
+.oa-cust-call:active{opacity:.7}
 
-/* Mobile Fix */
-@media (max-width: 768px) {
-    .contact-grid { grid-template-columns: 1fr; }
-    .input-group { grid-template-columns: 1fr; }
-    .form-box { padding: 25px !important; }
+/* meta grid */
+.oa-meta{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  animation:oa-up .38s var(--snap) .32s both;
 }
-
-    :root {
-        --ones-bg-color: #0a192f;
-        --ones-accent-color: #624768;
-        --ones-text-color: #ffffff;
-        --ones-card-border: rgba(255, 255, 255, 0.1);
-        --ones-text-dim: #94a3b8;
-    }
-
-
-    /* DROPDOWN SECTION */
-    .ones-dropdown { position: relative; padding-bottom: 10px; margin-bottom: -10px; }
-    .ones-dropdown::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        height: 15px;
-        display: block;
-    }
-
-    .ones-dropdown-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background: rgba(10, 25, 47, 0.98);
-        border: 1px solid var(--ones-card-border);
-        min-width: 200px;
-        border-radius: 10px;
-        padding: 10px 0;
-        list-style: none;
-        display: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        z-index: 1200;
-        margin-top: 5px;
-        backdrop-filter: blur(10px);
-    }
-
-    @media (min-width: 901px) {
-        .ones-dropdown:hover .ones-dropdown-menu { display: block; animation: onesFadeIn 0.2s ease forwards; }
-    }
-
-    .ones-dropdown.ones-is-open .ones-dropdown-menu { display: block; opacity: 1; }
-
-    .ones-dropdown-menu li a {
-        padding: 10px 20px !important;
-        display: block !important;
-        font-size: 0.8rem !important;
-        color: var(--ones-text-dim) !important;
-    }
-
-    .ones-dropdown-menu li a:hover { background: var(--ones-accent-color) !important; color: #fff !important; }
-
-    @media (max-width: 900px) {
-        .ones-dropdown { padding-bottom: 0; margin-bottom: 0; }
-        .ones-dropdown::after { display: none; }
-        .ones-dropdown-menu { position: static; width: 100%; background: transparent; border: none; box-shadow: none; padding-left: 15px; display: none; }
-        .ones-dropdown.ones-active .ones-dropdown-menu { display: block; }
-    }
-
-    @keyframes onesFadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 900px) {
-    /* Hide by default */
-    .ones-dropdown-menu { display: none; }
-    
-    /* Show when parent is active */
-    .ones-dropdown.ones-active .ones-dropdown-menu {
-        display: block !important;
-    }
+.oa-meta-tile{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);
+  border-radius:var(--r3);padding:13px 14px;
 }
-@media (max-width: 900px) {
-    /* 1. Setup the container for animation */
-    .ones-dropdown-menu {
-        display: block !important; /* Always 'block' so it can animate */
-        max-height: 0;             /* Start at 0 height */
-        overflow: hidden;          /* Hide the contents */
-        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(255, 255, 255, 0.03);
-        padding: 0 !important;     /* Remove padding so it hits 0px exactly */
-        border: none;
-    }
+.oa-meta-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:5px}
+.oa-meta-val{font-size:15px;font-weight:700;color:#fff;line-height:1.2}
+.oa-meta-val.earn{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold2)}
 
-    /* 2. When active, grow to a large enough size */
-    .ones-dropdown.ones-active .ones-dropdown-menu {
-        max-height: 500px;         /* Any value larger than your menu content */
-        padding: 10px 0 10px 15px !important;
-    }
-    
-    /* 3. Smooth Chevron Rotation */
-    .ones-chevron-icon {
-        transition: transform 0.3s ease;
-    }
+/* notes */
+.oa-notes{
+  background:rgba(217,119,6,.1);border:1.5px solid rgba(217,119,6,.3);
+  border-radius:var(--r3);padding:13px 16px;
+  animation:oa-up .38s var(--snap) .37s both;
 }
+.oa-notes-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+.oa-notes-txt{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6}
 
-    </style>
+/* action bar pinned at bottom */
+.oa-actions{
+  flex-shrink:0;z-index:1;
+  padding:16px 18px calc(max(env(safe-area-inset-bottom),16px) + 12px);
+  display:flex;gap:12px;
+  background:linear-gradient(to top,rgba(26,45,92,1) 60%,transparent 100%);
+  animation:oa-up .4s var(--snap) .42s both;
+}
+.oa-btn-accept{
+  flex:1;padding:18px;border-radius:var(--r4);
+  background:var(--green);color:#fff;
+  font-size:18px;font-weight:700;letter-spacing:.3px;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 8px 32px rgba(43,160,87,.45);
+  transition:transform .18s var(--spring),box-shadow .18s;
+}
+.oa-btn-accept:active{transform:scale(.96);box-shadow:0 4px 16px rgba(43,160,87,.3)}
+.oa-btn-decline{
+  flex-shrink:0;padding:18px 20px;border-radius:var(--r4);
+  background:rgba(229,57,53,.13);color:var(--red);
+  border:1.5px solid rgba(229,57,53,.3);
+  font-size:15px;font-weight:700;
+  transition:opacity .15s;
+}
+.oa-btn-decline:active{opacity:.7}
+
+/* ORDER DETAIL FULLSCREEN */
+#order-detail{position:fixed;inset:0;z-index:600;background:var(--paper);transform:translateY(100%);transition:transform .4s var(--snap);display:flex;flex-direction:column}
+#order-detail.in{transform:translateY(0)}
+.od-topbar{padding:calc(max(env(safe-area-inset-top),16px)) 18px 14px;display:flex;align-items:center;gap:12px;background:var(--ink);flex-shrink:0}
+.od-back{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+.od-back:active{opacity:.7}
+.od-hd-info{flex:1}
+.od-hd-id{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.45)}
+.od-hd-svc{font-size:16px;font-weight:700;color:#fff}
+.od-scroll{flex:1;overflow-y:auto;padding-bottom:40px}
+
+/* STAT ROW */
+.stat-row{display:flex;gap:10px;padding:16px 14px 4px}
+.stat-box{flex:1;background:#fff;border-radius:var(--r4);padding:14px 13px;border:1.5px solid var(--paper2);text-align:center;position:relative;overflow:hidden}
+.stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.sb-today::before{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.sb-prog::before{background:linear-gradient(90deg,var(--amber),#F59E0B)}
+.sb-done::before{background:linear-gradient(90deg,var(--green),#52C98A)}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:var(--ink);line-height:1}
+.stat-lbl{font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--ink4);text-transform:uppercase;margin-top:4px}
+
+/* EARNINGS */
+.earn-card{margin:12px 14px 0;background:var(--ink);border-radius:var(--r4);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.earn-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(65,105,225,.3) 0%,transparent 65%);pointer-events:none}
+.ec-left{position:relative}
+.ec-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:5px}
+.ec-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;color:#fff;line-height:1}
+.ec-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:4px}
+.ec-right{position:relative;text-align:right}
+.ec-rating{font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff}
+.ec-stars{font-size:12px;color:var(--gold2);letter-spacing:1px}
+.ec-rlbl{font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-top:3px}
+
+/* QUICK CHIPS */
+.qa-row{display:flex;gap:8px;padding:8px 14px 0;overflow-x:auto}
+.qa-chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;border-radius:var(--rx);border:1.5px solid var(--paper2);font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .15s var(--ease);white-space:nowrap}
+.qa-chip:active{transform:scale(.95)}
+.qa-chip.qa-on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* HISTORY */
+.hist-card{margin:0 14px 10px;background:#fff;border-radius:var(--r4);border:1.5px solid var(--paper2);padding:14px 16px;display:flex;align-items:center;gap:12px}
+.hc-em{width:40px;height:40px;background:var(--paper1);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.hc-info{flex:1;min-width:0}
+.hc-svc{font-size:14px;font-weight:700;color:var(--ink)}
+.hc-meta{font-size:11px;color:var(--ink3);margin-top:2px}
+.hc-right{text-align:right;flex-shrink:0}
+.hc-amt{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink)}
+.hc-dt{font-size:10px;color:var(--ink4);margin-top:3px}
+
+/* PROFILE */
+.prof-hero{margin:16px 14px;background:var(--ink);border-radius:var(--r5);padding:22px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
+.prof-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(65,105,225,.4) 0%,transparent 65%);pointer-events:none}
+.ph-av{width:72px;height:72px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:34px;color:#fff;border:3px solid rgba(255,255,255,.2);margin-bottom:12px;position:relative}
+.ph-nm{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#fff;position:relative}
+.ph-role{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px;position:relative}
+.ph-stats{display:flex;gap:0;width:100%;margin-top:18px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px;position:relative}
+.ph-stat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.08)}
+.ph-stat:last-child{border:none}
+.ph-sv{font-family:'Cormorant Garamond',serif;font-size:22px;color:#fff}
+.ph-sl{font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-top:2px}
+.prof-sec{margin:0 14px 14px}
+.prof-sec-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--ink4);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.prof-sec-lbl::after{content:'';flex:1;height:1px;background:var(--paper2)}
+.prof-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border-radius:var(--r3);margin-bottom:8px;border:1.5px solid var(--paper2);cursor:pointer}
+.prof-row:active{background:var(--paper1)}
+.pr-l{font-size:14px;font-weight:500;color:var(--ink)}
+.pr-r{font-size:13px;color:var(--ink4)}
+.skill-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sk-tag{padding:5px 12px;background:var(--gold-glow);border:1px solid var(--gold-ring);border-radius:var(--rx);font-size:11px;font-weight:600;color:var(--gold3)}
+
+/* EMPTY */
+.empty{padding:60px 20px;text-align:center}
+.empty-ic{font-size:44px;margin-bottom:12px;opacity:.5}
+.empty-t{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--ink4);line-height:1.6}
+
+/* TOAST */
+#toasts{position:fixed;top:calc(max(env(safe-area-inset-top),18px) + 100px);left:50%;transform:translateX(-50%);z-index:9000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:rgba(26,45,92,.93);color:#fff;border-radius:var(--rx);padding:10px 20px;font-size:13px;font-weight:600;backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(26,45,92,.25);white-space:nowrap;animation:tIn .3s var(--spring);max-width:90vw}
+@keyframes tIn{from{transform:translateY(-10px) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.toast.out{animation:tOut .2s var(--ease) forwards}
+@keyframes tOut{to{transform:translateY(-6px) scale(.95);opacity:0}}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fu .3s var(--ease) both}
+
+/* INCOMING FLASH */
+#incoming-overlay{position:fixed;inset:0;z-index:700;background:rgba(65,105,225,.07);pointer-events:none;opacity:0}
+#incoming-overlay.flash{animation:flash 1.2s var(--ease) 3}
+@keyframes flash{0%,100%{opacity:0}50%{opacity:1}}
+</style>
 </head>
 <body>
-
- <div id="ones-nav-placeholder"></div>
-
-<div id="cursor-glow"></div>
-
-<div class="container">
-    <div class="top-row">
-        <div class="glass-card">
-            <span class="section-tag">Phase 01: Scanning</span>
-            <h2>Neural Audit</h2>
-            <p>Connect your domain to analyze systemic AI bottlenecks.</p>
-            <input type="text" id="domain-input" placeholder="enterprise-id.ai">
-            <button class="btn-card" id="audit-btn">Initialize Forge Scan</button>
+<div id="shell">
+  <div id="topbar">
+    <div class="tb-left">
+      <div class="tb-greeting">Welcome back</div>
+      <div class="tb-name">Ramesh <em>Tailor</em></div>
+      <div class="tb-status-row">
+        <div class="tb-status on" id="duty-btn" onclick="toggleDuty()">
+          <div class="tb-dot pulse" id="duty-dot"></div>
+          <span id="duty-lbl">On Duty</span>
         </div>
-        <div class="glass-card">
-            <span class="section-tag">Phase 02: Output</span>
-            <h2>Final Blueprint</h2>
-            <p id="blueprint-status">System idle. Awaiting neural data...</p>
-            <button class="btn-card" id="view-btn" disabled>View Analysis</button>
-        </div>
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.3)">· Rajpur Road</div>
+      </div>
     </div>
-
-    <div class="main-layout">
-        <div class="timeline-container">
-            <div class="timeline-step active" id="step-1"><span class="timeline-dot"></span><strong>W01</strong><p>Mapping</p></div>
-            <div class="timeline-step" id="step-2"><span class="timeline-dot"></span><strong>W02</strong><p>Training</p></div>
-            <div class="timeline-step" id="step-3"><span class="timeline-dot"></span><strong>W03</strong><p>Security</p></div>
-            <div class="timeline-step" id="step-4"><span class="timeline-dot"></span><strong>W04</strong><p>Launch</p></div>
-        </div>
-
-        <div class="card-grid">
-            <div class="glass-card small-card">
-                <h3 style="font-family: Montserrat;">ROI Optimizer</h3>
-                <p style="font-size: 0.8rem;">Estimated Efficiency: <span id="roi-val" style="color:var(--mauve)">+0%</span></p>
-                <input type="range" id="roi-range" min="0" max="100" value="0">
-                <button class="btn-card" style="background:transparent; border:1px solid var(--card-border); margin-top:10px;">Lock Strategy</button>
-            </div>
-            <div class="glass-card small-card">
-                <h3 style="font-family: Montserrat;">Global Grid</h3>
-                <p style="font-size: 0.8rem;">Active Clusters: <span id="node-count" style="color:#4ade80">14</span>/256</p>
-                <div style="display:flex; gap:5px; margin-top:10px">
-                    <div class="dot pulse" style="background:#4ade80; width:6px; height:6px;"></div>
-                    <div class="dot pulse" style="background:#4ade80; width:6px; height:6px; animation-delay:0.2s"></div>
-                </div>
-                <button class="btn-card" id="btn-nodes" style="background:transparent; border:1px solid var(--card-border); margin-top:10px;">Scale Grid</button>
-            </div>
-            <div class="glass-card" style="grid-column: span 2;">
-                <div id="creation-terminal"></div>
-            </div>
-        </div>
+    <div class="tb-right">
+      <button class="notif-btn" id="notif-btn" onclick="openNotifs()">🔔<div class="nbadge" id="notif-count">3</div></button>
+      <div class="avatar" onclick="switchTab('profile',document.querySelector('[data-tab=profile]'))">R</div>
     </div>
-    <section id="contact-section" class="contact-wrap">
-    <div class="contact-header">
-        <span class="section-tag">Get in Touch</span>
-        <h2>Start a Conversation</h2>
-        <p>Fill out the form below and our team will get back to you within 24 hours.</p>
+  </div>
+
+  <div id="tabs">
+    <div class="tab on" data-tab="home" onclick="switchTab('home',this)"><div class="tab-ic">🏠</div><span>Home</span></div>
+    <div class="tab" data-tab="new" onclick="switchTab('new',this)"><div class="tab-ic">📥</div><span>New</span><div class="tab-badge" id="new-badge">2</div></div>
+    <div class="tab" data-tab="active" onclick="switchTab('active',this)"><div class="tab-ic">⚡</div><span>Active</span><div class="tab-badge" id="active-badge" style="display:none"></div></div>
+    <div class="tab" data-tab="history" onclick="switchTab('history',this)"><div class="tab-ic">📋</div><span>History</span></div>
+    <div class="tab" data-tab="profile" onclick="switchTab('profile',this)"><div class="tab-ic">👤</div><span>Profile</span></div>
+  </div>
+
+  <div id="pages">
+    <!-- HOME -->
+    <div class="page on" id="pg-home">
+      <div class="stat-row">
+        <div class="stat-box sb-today"><div class="stat-val" id="st-today">3</div><div class="stat-lbl">Today</div></div>
+        <div class="stat-box sb-prog"><div class="stat-val" id="st-active">1</div><div class="stat-lbl">In Progress</div></div>
+        <div class="stat-box sb-done"><div class="stat-val" id="st-done">8</div><div class="stat-lbl">Completed</div></div>
+      </div>
+      <div class="earn-card">
+        <div class="ec-left"><div class="ec-lbl">This Week's Earnings</div><div class="ec-val">₹4,820</div><div class="ec-sub">↑ 14% vs last week</div></div>
+        <div class="ec-right"><div class="ec-stars">★★★★★</div><div class="ec-rating">4.9</div><div class="ec-rlbl">Rating</div></div>
+      </div>
+      <div class="qa-row">
+        <div class="qa-chip qa-on" onclick="switchTab('new',document.querySelector('[data-tab=new]'))">📥 New Orders</div>
+        <div class="qa-chip" onclick="switchTab('active',document.querySelector('[data-tab=active]'))">⚡ Active</div>
+        <div class="qa-chip" onclick="openNotifs()">🔔 Alerts</div>
+        <div class="qa-chip" onclick="toast('📞 1800-STITCH')">📞 Support</div>
+      </div>
+      <div class="sec-lbl" style="margin-top:20px">Incoming Orders</div>
+      <div id="home-incoming"></div>
+      <div class="sec-lbl">Today's Active</div>
+      <div id="home-schedule"></div>
     </div>
-
-    <div class="contact-grid">
-        <div class="info-column">
-            <div class="glass-card info-box">
-                <i class="fa-solid fa-envelope"></i>
-                <div>
-                    <h4>Email Us</h4>
-                    <p>hq@1nestep.ai</p>
-                </div>
-            </div>
-            <div class="glass-card info-box">
-                <i class="fa-solid fa-location-dot"></i>
-                <div>
-                    <h4>Location</h4>
-                    <p>Remote / Digital Node</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-card form-box">
-           <form id="simple-contact-form" action="https://formspree.io/f/info@1nestep.in" method="POST">
-                <div class="input-group">
-                    <input type="text" id="user-name" name="user-name" placeholder="Your Name" required>
-                    <input type="email" id="user-email" name="user-email" placeholder="Your Email" required>
-                </div>
-                
-                <select id="service-type">
-                    <option value="" disabled selected>What do you need help with?</option>
-                    <option value="audit">Free System Audit</option>
-                    <option value="implementation">AI Implementation</option>
-                    <option value="partnership">Business Partnership</option>
-                    <option value="other">Something Else</option>
-                </select>
-
-                <textarea id="user-message" rows="5" placeholder="Tell us a little bit about your project..." required></textarea>
-                
-                <button type="submit" class="btn-card" id="submit-btn">
-                    <span>Send Message</span>
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </form>
-            <div id="form-status" class="hidden"></div>
-        </div>
+    <!-- NEW ORDERS -->
+    <div class="page" id="pg-new"><div id="new-orders-list"></div></div>
+    <!-- ACTIVE -->
+    <div class="page" id="pg-active"><div id="active-list"></div></div>
+    <!-- HISTORY -->
+    <div class="page" id="pg-history">
+      <div class="qa-row" style="padding-top:14px">
+        <div class="qa-chip qa-on" onclick="filterHist('all',this)">All</div>
+        <div class="qa-chip" onclick="filterHist('done',this)">Completed</div>
+        <div class="qa-chip" onclick="filterHist('cancelled',this)">Cancelled</div>
+      </div>
+      <div class="sec-lbl" style="margin-top:16px">Past Orders</div>
+      <div id="hist-list"></div>
     </div>
-</section>
+    <!-- PROFILE -->
+    <div class="page" id="pg-profile">
+      <div class="prof-hero">
+        <div class="ph-av">R</div>
+        <div class="ph-nm">Ramesh Tailor</div>
+        <div class="ph-role">Master Tailor · Stitch Partner</div>
+        <div class="ph-stats">
+          <div class="ph-stat"><div class="ph-sv">143</div><div class="ph-sl">Orders</div></div>
+          <div class="ph-stat"><div class="ph-sv">4.9★</div><div class="ph-sl">Rating</div></div>
+          <div class="ph-stat"><div class="ph-sv">2 yr</div><div class="ph-sl">Partner</div></div>
+          <div class="ph-stat"><div class="ph-sv">₹58k</div><div class="ph-sl">Earned</div></div>
+        </div>
+      </div>
+      <div class="prof-sec">
+        <div class="prof-sec-lbl">Specialisations</div>
+        <div class="skill-tags">
+          <div class="sk-tag">✂️ Alterations</div><div class="sk-tag">🧥 Suits</div>
+          <div class="sk-tag">👔 Shirts</div><div class="sk-tag">🥻 Traditional Wear</div><div class="sk-tag">🧵 Embroidery</div>
+        </div>
+      </div>
+      <div class="prof-sec">
+        <div class="prof-sec-lbl">Account</div>
+        <div class="prof-row" onclick="toast('📱 +91 98100 11001')"><div class="pr-l">📱 Phone</div><div class="pr-r">+91 98100 11001</div></div>
+        <div class="prof-row" onclick="toast('📍 Rajpur Road, Patna')"><div class="pr-l">📍 Zone</div><div class="pr-r">Rajpur Road</div></div>
+        <div class="prof-row" onclick="toast('🏦 Bank details on file')"><div class="pr-l">🏦 Payment</div><div class="pr-r">Bank Account ✓</div></div>
+        <div class="prof-row" onclick="toast('⏰ 9AM – 9PM')"><div class="pr-l">⏰ Working Hours</div><div class="pr-r">9AM – 9PM</div></div>
+      </div>
+      <div class="prof-sec">
+        <div class="prof-sec-lbl">Support</div>
+        <div class="prof-row" onclick="toast('💬 Chat support opening…')"><div class="pr-l">💬 Chat with Admin</div><div class="pr-r">→</div></div>
+        <div class="prof-row" onclick="toast('📞 1800-STITCH')"><div class="pr-l">📞 Helpline</div><div class="pr-r">1800-STITCH</div></div>
+      </div>
+      <div style="padding:0 14px 32px">
+        <button style="width:100%;padding:14px;border-radius:var(--r4);background:var(--red-bg);color:var(--red);font-size:14px;font-weight:700;border:1.5px solid var(--red-ring)" onclick="toast('👋 Signing out…')">Sign Out</button>
+      </div>
+    </div>
+  </div>
 </div>
 
+<!-- NOTIFICATION HUB (bell icon) — bigger -->
+<div id="notif-bg" onclick="closeNotifsCheck(event)">
+  <div id="notif-drawer">
+    <div class="nd-handle"></div>
+    <div class="nd-hd">
+      <div>
+        <div class="nd-title">Alerts <em>&amp; Updates</em></div>
+        <div class="nd-title-sub" id="nd-unread-lbl">3 unread</div>
+      </div>
+      <button class="nd-close" onclick="closeNotifs()">✕</button>
+    </div>
+    <div class="nd-scroll" id="notif-list"></div>
+    <div class="nd-clear" onclick="clearNotifs()">Clear all notifications</div>
+  </div>
+</div>
+
+<!-- FULLSCREEN ORDER ARRIVAL — Uber-style -->
+<div id="order-arrival">
+  <div class="oa-progress-bar"><div class="oa-progress-fill" id="oa-progress"></div></div>
+  <div class="oa-top">
+    <div style="margin-top:10px"></div>
+    <div class="oa-incoming-badge"><div class="oa-badge-dot"></div>NEW ORDER INCOMING</div>
+    <div class="oa-rings">
+      <div class="oa-ring"></div><div class="oa-ring"></div><div class="oa-ring"></div>
+      <div class="oa-icon" id="oa-icon">📥</div>
+    </div>
+    <div class="oa-headline" id="oa-headline">New <em>pickup</em> request<small id="oa-id">STH-0000</small></div>
+    <div class="oa-countdown">Auto-declines in <span id="oa-timer">90</span>s</div>
+  </div>
+  <div class="oa-body" id="oa-body"></div>
+  <div class="oa-actions">
+    <button class="oa-btn-decline" id="oa-decline-btn">✕ Decline</button>
+    <button class="oa-btn-accept" id="oa-accept-btn">✓ Accept Order</button>
+  </div>
+</div>
+
+<!-- ORDER DETAIL -->
+<div id="order-detail">
+  <div class="od-topbar">
+    <button class="od-back" onclick="closeDetail()">←</button>
+    <div class="od-hd-info">
+      <div class="od-hd-id" id="od-id"></div>
+      <div class="od-hd-svc" id="od-svc"></div>
+    </div>
+    <div id="od-badge"></div>
+  </div>
+  <div class="od-scroll" id="od-body"></div>
+</div>
+
+<div id="incoming-overlay"></div>
+<div id="toasts"></div>
 
 <script>
-   
+'use strict';
+const ORDERS=[
+  {id:'STH-8841',em:'🤵',svc:'Dry Clean Suit',cat:'Dry Clean',st:'new',
+   cust:{nm:'Rahul Kumar',ph:'+91 98765 43210',addr:'Flat 4B, Sunrise Apartments, Rajpur Road',landmark:'Near Patna Medical College'},
+   amt:549,pickup:'13 Mar, 2:00 PM',due:'15 Mar, 6:00 PM',qty:1,
+   notes:'Handle collar carefully — slight tear on left side.',urgent:false,dueMs:Date.now()+54*3600*1000},
+  {id:'STH-8839',em:'🧥',svc:'Custom Suit',cat:'Tailoring',st:'new',
+   cust:{nm:'Deepak Yadav',ph:'+91 98765 66666',addr:'12 Gandhi Marg, Ashiana Colony',landmark:'Opposite SBI ATM'},
+   amt:3549,pickup:'13 Mar, 4:00 PM',due:'20 Mar, 5:00 PM',qty:1,
+   notes:'Measurements: Chest 42", Waist 36", Length 28". Blue fabric selected.',urgent:false,dueMs:Date.now()+7*24*3600*1000},
+  {id:'STH-8838',em:'👕',svc:'Wash & Iron x6',cat:'Laundry',st:'active',
+   cust:{nm:'Ravi Gupta',ph:'+91 98765 44444',addr:'B-7 Shastri Nagar, Bailey Road',landmark:'Near Patna Zoo Gate'},
+   amt:319,pickup:'12 Mar, 11:00 AM',due:'13 Mar, 7:00 PM',qty:6,
+   notes:'Press collar stiff. Use mild starch.',urgent:true,dueMs:Date.now()+3.2*3600*1000},
+  {id:'STH-8836',em:'🥻',svc:'Saree Dry Clean',cat:'Dry Clean',st:'done',
+   cust:{nm:'Kavita Mishra',ph:'+91 98765 77777',addr:'C-22 Boring Road, Patna',landmark:'Near Boring Canal Road'},
+   amt:399,pickup:'10 Mar',due:'12 Mar',qty:1,notes:'',urgent:false,dueMs:0},
+  {id:'STH-8833',em:'✂️',svc:'Alterations x2',cat:'Tailoring',st:'done',
+   cust:{nm:'Rahul Kumar',ph:'+91 98765 43210',addr:'Flat 4B, Sunrise Apartments, Rajpur Road',landmark:'Near Patna Medical College'},
+   amt:549,pickup:'8 Mar',due:'10 Mar',qty:2,notes:'',urgent:false,dueMs:0},
+  {id:'STH-8830',em:'⚡',svc:'Express Laundry',cat:'Express',st:'cancelled',
+   cust:{nm:'Ravi Gupta',ph:'+91 98765 44444',addr:'B-7 Shastri Nagar, Bailey Road',landmark:''},
+   amt:169,pickup:'9 Mar',due:'9 Mar',qty:1,notes:'',urgent:false,dueMs:0},
+];
+const NOTIFS=[
+  {id:'n1',type:'new-order',ic:'📥',title:'New Order — STH-8841',body:'Rahul Kumar · Dry Clean Suit · Rs.549\nPickup: 13 Mar, 2:00 PM',time:'Just now',unread:true,orderId:'STH-8841'},
+  {id:'n2',type:'new-order',ic:'📥',title:'New Order — STH-8839',body:'Deepak Yadav · Custom Suit · Rs.3,549\nPickup: 13 Mar, 4:00 PM',time:'10 min ago',unread:true,orderId:'STH-8839'},
+  {id:'n3',type:'urgent',ic:'⚠️',title:'Deadline in 3 hrs — STH-8838',body:'Ravi Gupta · Wash & Iron x6\nDue: Today 7:00 PM',time:'30 min ago',unread:true,orderId:'STH-8838'},
+  {id:'n4',type:'done',ic:'✅',title:'Payment Released',body:'Rs.399 for STH-8836 credited to your account.',time:'2 hrs ago',unread:false,orderId:null},
+];
+let DUTY=true,ACTIVE_TAB='home',HIST_FILTER='all',timerInterval=null;
+let oaCountdown=null, oaCurrentOrderId=null;
 
-   
+/* ══════════════════════════════════════
+   SERVICE WORKER + PUSH NOTIFICATIONS
+   Registers a SW that stays alive when
+   the page/app is closed — same as Uber
+══════════════════════════════════════ */
+const SW_CODE=`
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
+self.addEventListener('push',e=>{
+  const d=e.data?e.data.json():{title:'New Stitch Order',body:'Tap to view',orderId:null};
+  e.waitUntil(self.registration.showNotification(d.title,{
+    body:d.body,
+    icon:'/icon-192.png',
+    badge:'/badge-72.png',
+    tag:'stitch-order-'+d.orderId,
+    renotify:true,
+    requireInteraction:true,
+    vibrate:[200,100,200,100,400],
+    actions:[
+      {action:'accept', title:'✓ Accept'},
+      {action:'decline',title:'✕ Decline'}
+    ],
+    data:{orderId:d.orderId}
+  }));
+});
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  const orderId=e.notification.data?.orderId;
+  if(e.action==='accept'){
+    e.waitUntil(clients.matchAll({type:'window'}).then(wins=>{
+      const w=wins.find(w=>w.focused)||wins[0];
+      if(w){w.focus();w.postMessage({type:'ACCEPT_ORDER',orderId});}
+      else self.clients.openWindow('/?accept='+orderId);
+    }));
+  } else {
+    e.waitUntil(clients.matchAll({type:'window'}).then(wins=>{
+      const w=wins.find(w=>w.focused)||wins[0];
+      if(w){w.focus();w.postMessage({type:'OPEN_APP',orderId});}
+      else self.clients.openWindow('/');
+    }));
+  }
+});
+self.addEventListener('message',e=>{
+  if(e.data?.type==='PING')e.source.postMessage({type:'PONG'});
+});
+`;
 
-    // GLOW EFFECT
-    const glow = document.getElementById('cursor-glow');
-    document.addEventListener('mousemove', (e) => {
-        glow.style.left = e.clientX + 'px';
-        glow.style.top = e.clientY + 'px';
+let swReg=null;
+let pushEnabled=false;
+
+async function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)){
+    console.log('SW not supported');return;
+  }
+  try{
+    const blob=new Blob([SW_CODE],{type:'application/javascript'});
+    const swUrl=URL.createObjectURL(blob);
+    swReg=await navigator.serviceWorker.register(swUrl,{scope:'/'});
+    console.log('✅ Service Worker registered');
+
+    /* Listen for messages from SW (accept/decline from notification action) */
+    navigator.serviceWorker.addEventListener('message',e=>{
+      if(e.data?.type==='ACCEPT_ORDER')arrestAccept(e.data.orderId);
+      if(e.data?.type==='OPEN_APP')openDetail(e.data.orderId);
     });
 
-    // TERMINAL LOGIC
-    function log(msg) {
-        const terminal = document.getElementById('creation-terminal');
-        const div = document.createElement('div');
-        div.innerHTML = `<span style="color: var(--accent-color)">[system]</span> ${msg}`;
-        terminal.appendChild(div);
-        terminal.scrollTop = terminal.scrollHeight;
+    await requestPushPermission();
+  }catch(err){
+    console.log('SW register failed (needs HTTPS or localhost):',err.message);
+    showPushBanner('push-banner-http');
+  }
+}
+
+async function requestPushPermission(){
+  if(!('Notification' in window))return;
+  let perm=Notification.permission;
+  if(perm==='default'){
+    perm=await Notification.requestPermission();
+  }
+  if(perm==='granted'){
+    pushEnabled=true;
+    updatePushBadge(true);
+    toast('🔔 Background notifications ON');
+  } else {
+    updatePushBadge(false);
+  }
+}
+
+function updatePushBadge(on){
+  const btn=document.getElementById('push-toggle-btn');
+  if(!btn)return;
+  btn.textContent=on?'🔔 Notifs On':'🔕 Enable Notifs';
+  btn.style.background=on?'rgba(43,160,87,.18)':'rgba(65,105,225,.18)';
+  btn.style.color=on?'#6EE09A':'var(--gold2)';
+  btn.style.borderColor=on?'rgba(43,160,87,.3)':'rgba(65,105,225,.3)';
+}
+
+/* Show a real native notification (works when tab is in background) */
+async function showNativeNotif(order){
+  if(!pushEnabled||!swReg)return;
+  await swReg.showNotification(`📥 New Order — ${order.id}`,{
+    body:`${order.cust.nm} · ${order.svc} · Rs.${order.amt.toLocaleString('en-IN')}\n📍 ${order.cust.addr}`,
+    icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✂️</text></svg>',
+    tag:'stitch-order-'+order.id,
+    renotify:true,
+    requireInteraction:true,
+    vibrate:[200,100,200,100,400],
+    actions:[
+      {action:'accept', title:'✓ Accept'},
+      {action:'decline',title:'✕ Decline'}
+    ],
+    data:{orderId:order.id}
+  });
+}
+
+function showPushBanner(reason){/* silent in production */}
+
+/* ══════════════════════════════════════
+   FULLSCREEN ORDER ARRIVAL SCREEN
+   Like Uber Driver — takes over entire UI
+══════════════════════════════════════ */
+function showOrderArrival(o){
+  oaCurrentOrderId=o.id;
+
+  /* Build body content */
+  document.getElementById('oa-id').textContent=o.id;
+  document.getElementById('oa-icon').textContent=o.em;
+  document.getElementById('oa-headline').innerHTML=
+    `${o.em} <em>${o.svc}</em><small>${o.id} · ${o.cat}</small>`;
+
+  const earn=Math.round(o.amt*.72).toLocaleString('en-IN');
+  const notesHtml=o.notes?`
+    <div class="oa-notes">
+      <div class="oa-notes-lbl">⚠️ Special Instructions</div>
+      <div class="oa-notes-txt">${o.notes}</div>
+    </div>`:'';
+
+  document.getElementById('oa-body').innerHTML=`
+    <div class="oa-svc">
+      <div class="oa-svc-em">${o.em}</div>
+      <div style="flex:1">
+        <div class="oa-svc-name">${o.svc}</div>
+        <div class="oa-svc-cat">${o.cat} · ${o.qty} piece${o.qty>1?'s':''}</div>
+      </div>
+      <div class="oa-svc-amt">
+        <div class="oa-svc-amt-val">Rs.${o.amt.toLocaleString('en-IN')}</div>
+        <div class="oa-svc-amt-earn">You earn Rs.${earn}</div>
+      </div>
+    </div>
+
+    <div class="oa-addr">
+      <div class="oa-addr-lbl"><div class="oa-addr-dot"></div>Pickup Address</div>
+      <div class="oa-addr-main">${o.cust.addr}</div>
+      ${o.cust.landmark?`<div class="oa-addr-land">Landmark: ${o.cust.landmark}</div>`:''}
+    </div>
+
+    <div class="oa-cust">
+      <div class="oa-cust-av">${o.cust.nm[0]}</div>
+      <div>
+        <div class="oa-cust-name">${o.cust.nm}</div>
+        <div class="oa-cust-ph">${o.cust.ph}</div>
+      </div>
+      <button class="oa-cust-call" onclick="callCust('${o.cust.ph}')">📞 Call</button>
+    </div>
+
+    <div class="oa-meta">
+      <div class="oa-meta-tile">
+        <div class="oa-meta-lbl">Pickup Slot</div>
+        <div class="oa-meta-val">${o.pickup}</div>
+      </div>
+      <div class="oa-meta-tile">
+        <div class="oa-meta-lbl">Due By</div>
+        <div class="oa-meta-val${o.urgent?' earn':''}">${o.due.split(',')[0]}</div>
+      </div>
+      <div class="oa-meta-tile">
+        <div class="oa-meta-lbl">Your Earnings</div>
+        <div class="oa-meta-val earn">Rs.${earn}</div>
+      </div>
+      <div class="oa-meta-tile">
+        <div class="oa-meta-lbl">Distance</div>
+        <div class="oa-meta-val">~2.4 km</div>
+      </div>
+    </div>
+    ${notesHtml}
+    <div style="height:8px"></div>
+  `;
+
+  /* Wire accept/decline buttons */
+  document.getElementById('oa-accept-btn').onclick=()=>oaAccept();
+  document.getElementById('oa-decline-btn').onclick=()=>oaDecline();
+
+  /* Restart progress bar animation */
+  const fill=document.getElementById('oa-progress');
+  fill.style.animation='none';
+  fill.offsetHeight; /* reflow */
+  fill.style.animation='oa-drain 90s linear forwards';
+
+  /* Show screen */
+  document.getElementById('order-arrival').classList.add('in');
+
+  /* Vibrate device */
+  if(navigator.vibrate)navigator.vibrate([300,100,300,100,600]);
+
+  /* Countdown timer */
+  let sec=90;
+  document.getElementById('oa-timer').textContent=sec;
+  clearInterval(oaCountdown);
+  oaCountdown=setInterval(()=>{
+    sec--;
+    const el=document.getElementById('oa-timer');
+    if(el)el.textContent=sec;
+    if(sec<=0){
+      clearInterval(oaCountdown);
+      oaAutoDecline();
     }
+  },1000);
+}
 
-window.onload = () => log("FORGE MOBILE KERNEL READY...");
+function hideOrderArrival(){
+  document.getElementById('order-arrival').classList.remove('in');
+  clearInterval(oaCountdown);
+  oaCurrentOrderId=null;
+}
 
-document.getElementById('simple-contact-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+function oaAccept(){
+  const id=oaCurrentOrderId;
+  hideOrderArrival();
+  arrestAccept(id);
+}
+function oaDecline(){
+  const id=oaCurrentOrderId;
+  hideOrderArrival();
+  declineOrder(id);
+}
+function oaAutoDecline(){
+  hideOrderArrival();
+  toast('⏱ Order auto-declined — no response');
+  const o=ORDERS.find(x=>x.id===oaCurrentOrderId);
+  if(o)o.st='cancelled';
+  updateBadges();renderTab(ACTIVE_TAB);
+}
+function arrestAccept(id){
+  /* same as acceptOrder but called from arrival screen or SW action */
+  acceptOrder(id);
+}
 
-    const form = e.target;
-    const btn = document.getElementById('submit-btn');
-    const status = document.getElementById('form-status');
-    const name = document.getElementById('user-name').value;
-    const data = new FormData(form);
+/* ══════════════════════════════════════
+   TAB / RENDER FUNCTIONS (unchanged)
+══════════════════════════════════════ */
+function switchTab(tab,el){
+  ACTIVE_TAB=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+tab).classList.add('on');
+  renderTab(tab);
+}
+function renderTab(t){
+  if(t==='home')renderHome();
+  else if(t==='new')renderNew();
+  else if(t==='active')renderActive();
+  else if(t==='history')renderHist(HIST_FILTER);
+}
 
-    // Visual feedback
-    btn.disabled = true;
-    btn.innerHTML = '<span>TRANSMITTING...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
+function renderHome(){
+  const nw=ORDERS.filter(o=>o.st==='new'),ac=ORDERS.filter(o=>o.st==='active');
+  document.getElementById('st-today').textContent=nw.length+ac.length;
+  document.getElementById('st-active').textContent=ac.length;
+  document.getElementById('st-done').textContent=ORDERS.filter(o=>o.st==='done').length;
+  document.getElementById('home-incoming').innerHTML=nw.length
+    ?nw.slice(0,2).map((o,i)=>card(o,'compact',i)).join('')
+    :'<div style="padding:0 14px 20px;font-size:13px;color:var(--ink4);text-align:center">No new orders right now</div>';
+  document.getElementById('home-schedule').innerHTML=ac.length
+    ?ac.map((o,i)=>card(o,'compact',i)).join('')
+    :'<div style="padding:0 14px 20px;font-size:13px;color:var(--ink4)">Nothing active</div>';
+  updateBadges();
+}
+function renderNew(){
+  const nw=ORDERS.filter(o=>o.st==='new');
+  document.getElementById('new-orders-list').innerHTML=nw.length
+    ?'<div style="height:14px"></div>'+nw.map((o,i)=>card(o,'full',i)).join('')
+    :'<div class="empty"><div class="empty-ic">📭</div><div class="empty-t">No new orders</div><div class="empty-s">You\'re all caught up!<br/>New orders will appear here.</div></div>';
+  updateBadges();
+}
+function renderActive(){
+  const ac=ORDERS.filter(o=>o.st==='active');
+  document.getElementById('active-list').innerHTML=ac.length
+    ?'<div style="height:14px"></div>'+ac.map((o,i)=>card(o,'full',i)).join('')
+    :'<div class="empty"><div class="empty-ic">⚡</div><div class="empty-t">Nothing in progress</div><div class="empty-s">Accept a new order to get started.</div></div>';
+}
 
-    // Log to your system terminal
-    if (typeof log === "function") {
-        log(`Incoming transmission from: ${name}...`);
-        log("UPLINK: Initiating secure data transfer...");
+function card(o,mode,idx){
+  const delay=(idx*0.06)+'s';
+  const sc=o.st==='new'?'stripe-new':o.st==='active'?'stripe-progress':o.st==='done'?'stripe-done':'stripe-cancelled';
+  const cc=o.st==='new'?'new-order':o.urgent?'urgent':'';
+  const urgBanner=o.urgent?`<div class="urgency-banner" style="${mode==='full'?'':'margin:8px 14px 0'}"><span style="font-size:18px">⚠️</span><span>URGENT — Due in ~3 hrs, please prioritise</span></div>`:'';
+  const custFull=mode==='full'?`
+    <div class="cust-block">
+      <div class="cb-lbl">Customer</div>
+      <div class="cb-name">${o.cust.nm}</div>
+      <div class="cb-phone">📞 <span>${o.cust.ph}</span></div>
+      <div class="cb-addr"><strong>📍 Pickup / Delivery Address</strong>${o.cust.addr}${o.cust.landmark?`<br/><span style="color:rgba(255,255,255,.4);font-size:11px">Landmark: ${o.cust.landmark}</span>`:''}
+      </div>
+      <div class="cb-actions">
+        <button class="cb-act cb-call" onclick="callCust('${o.cust.ph}')">📞 Call</button>
+        <button class="cb-act cb-map" onclick="openMap('${encodeURIComponent(o.cust.addr)}')">🗺 Navigate</button>
+      </div>
+    </div>`:'';
+  const details=mode==='full'?`
+    <div class="ocard-details">
+      <div class="detail-row"><span class="dr-lbl">Quantity</span><span class="dr-val">${o.qty} piece${o.qty>1?'s':''}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Pickup Slot</span><span class="dr-val">${o.pickup}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Due By</span><span class="dr-val ${o.urgent?'urgent-t':''}">${o.due}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Your Earnings</span><span class="dr-val amt">Rs.${Math.round(o.amt*.72).toLocaleString('en-IN')}</span></div>
+    </div>`:'';
+  const notes=(mode==='full'&&o.notes)?`<div class="notes-block"><div class="nb-lbl">Special Instructions</div><div class="nb-txt">${o.notes}</div></div>`:'';
+  const timer=(o.urgent&&mode==='full')?`<div class="timer-row"><span style="font-size:14px">⏱</span><span class="timer-lbl">Time remaining</span><span class="timer-val" id="timer-${o.id}">--:--:--</span></div>`:'';
+  const actions=mode==='full'?actBtns(o):`
+    <div class="action-strip" style="padding-bottom:4px">
+      <button class="act-main act-accept" style="font-size:13px;padding:11px" onclick="openDetail('${o.id}')">View Order →</button>
+    </div>`;
+  return `<div class="ocard ${cc} fu" style="animation-delay:${delay};" onclick="${mode==='compact'?`openDetail('${o.id}')`:''}">
+    <div class="ocard-stripe ${sc}"></div>
+    ${urgBanner}
+    <div class="ocard-hd">
+      <div><div class="ocard-id">${o.id}</div><div class="ocard-svc">${o.em} ${o.svc}</div><div class="ocard-cat">${o.cat}</div></div>
+      <div class="ocard-time"><div class="ocard-due-lbl">Due</div><div class="ocard-due ${o.urgent?'urgent-t':''}">${o.due.split(',')[0]}</div><div style="margin-top:6px">${sbadge(o.st)}</div></div>
+    </div>
+    ${custFull}${details}${notes}${timer}${actions}
+  </div>`;
+}
+
+function actBtns(o){
+  if(o.st==='new') return `<div class="action-strip"><button class="act-ghost" onclick="declineOrder('${o.id}')">Decline</button><button class="act-main act-accept" onclick="acceptOrder('${o.id}')">✓ Accept Order</button></div>`;
+  if(o.st==='active') return `<div class="action-strip"><button class="act-main act-done" onclick="markReady('${o.id}')">✓ Mark Ready for Pickup</button></div>`;
+  if(o.st==='done') return `<div class="action-strip"><button class="act-ghost" style="flex:1;text-align:center;color:var(--green)">✓ Order Completed</button></div>`;
+  return '';
+}
+
+function openDetail(id){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return;
+  document.getElementById('od-id').textContent=o.id;
+  document.getElementById('od-svc').textContent=o.em+' '+o.svc;
+  document.getElementById('od-badge').innerHTML=sbadge(o.st);
+  const stps=['Received','In Progress','Ready','Delivered'];
+  const stMap={new:0,active:1,done:2};
+  const cur=stMap[o.st]??-1;
+  document.getElementById('od-body').innerHTML=`
+    ${o.urgent?`<div class="urgency-banner" style="margin:14px 14px 0">⚠️ URGENT — Due in ~3 hours, please prioritise this order</div>`:''}
+    <div class="cust-block" style="margin:14px 14px 10px">
+      <div class="cb-lbl">Customer Info</div>
+      <div class="cb-name">${o.cust.nm}</div>
+      <div class="cb-phone">📞 <span>${o.cust.ph}</span></div>
+      <div class="cb-addr"><strong>📍 Pickup / Delivery Address</strong>${o.cust.addr}${o.cust.landmark?`<br/><span style="color:rgba(255,255,255,.4);font-size:11px">Landmark: ${o.cust.landmark}</span>`:''}</div>
+      <div class="cb-actions">
+        <button class="cb-act cb-call" onclick="callCust('${o.cust.ph}')">📞 Call Customer</button>
+        <button class="cb-act cb-map" onclick="openMap('${encodeURIComponent(o.cust.addr)}')">🗺 Navigate</button>
+      </div>
+    </div>
+    <div class="ocard-details" style="padding:0 14px 4px">
+      <div class="detail-row"><span class="dr-lbl">Service</span><span class="dr-val">${o.em} ${o.svc}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Category</span><span class="dr-val">${o.cat}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Quantity</span><span class="dr-val">${o.qty} piece${o.qty>1?'s':''}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Pickup Slot</span><span class="dr-val">${o.pickup}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Due By</span><span class="dr-val ${o.urgent?'urgent-t':''}">${o.due}</span></div>
+      <div class="detail-row"><span class="dr-lbl">Your Earnings</span><span class="dr-val amt">Rs.${Math.round(o.amt*.72).toLocaleString('en-IN')}</span></div>
+    </div>
+    ${o.notes?`<div class="notes-block" style="margin:4px 14px 10px"><div class="nb-lbl">Special Instructions</div><div class="nb-txt">${o.notes}</div></div>`:''}
+    ${o.urgent&&o.st==='active'?`<div class="timer-row" style="margin:0 14px 10px">⏱ <span class="timer-lbl">Time remaining</span><span class="timer-val" id="timer-detail">--:--:--</span></div>`:''}
+    <div style="margin:0 14px 14px;padding:14px;background:#fff;border-radius:var(--r4);border:1.5px solid var(--paper2)">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--ink4);text-transform:uppercase;margin-bottom:14px">Order Progress</div>
+      ${stps.map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:7px 0;${i<3?'border-bottom:1px solid var(--paper2)':''}">
+        <div style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;background:${cur>i?'var(--green)':cur===i?'var(--gold)':'var(--paper2)'};color:${cur>=i?'#fff':'var(--ink4)'};">${cur>i?'✓':i+1}</div>
+        <div style="font-size:14px;font-weight:${cur===i?'700':'500'};color:${cur>i?'var(--green)':cur===i?'var(--ink)':'var(--ink4)'}">${s}</div>
+        ${cur===i?'<div style="margin-left:auto"><span class="sbadge sb-progress"><span class="sd pulse"></span>Now</span></div>':''}
+      </div>`).join('')}
+    </div>
+    ${actBtns(o).replace('action-strip','action-strip').replace('padding:0 14px 16px','padding:0 14px 24px')}
+  `;
+  document.getElementById('order-detail').classList.add('in');
+  if(o.urgent&&o.st==='active')startTimer(o,'detail');
+}
+function closeDetail(){document.getElementById('order-detail').classList.remove('in');clearInterval(timerInterval);}
+
+function acceptOrder(id){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return;
+  o.st='active';updateBadges();renderTab(ACTIVE_TAB);
+  toast('✅ Order '+id+' accepted!');
+  setTimeout(()=>{document.getElementById('order-detail').classList.remove('in');setTimeout(()=>openDetail(id),350)},500);
+}
+function declineOrder(id){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return;
+  o.st='cancelled';updateBadges();renderTab(ACTIVE_TAB);closeDetail();
+  toast('⛔ Order declined');
+}
+function markReady(id){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return;
+  o.st='done';updateBadges();renderTab(ACTIVE_TAB);closeDetail();
+  toast('📦 Marked ready for pickup! Admin notified.');
+}
+
+function renderHist(f){
+  HIST_FILTER=f;
+  const data=f==='all'?ORDERS.filter(o=>o.st==='done'||o.st==='cancelled'):ORDERS.filter(o=>o.st===f);
+  document.getElementById('hist-list').innerHTML=data.length
+    ?data.map((o,i)=>`<div class="hist-card fu" style="animation-delay:${i*.06}s;cursor:pointer" onclick="openDetail('${o.id}')">
+        <div class="hc-em">${o.em}</div>
+        <div class="hc-info"><div class="hc-svc">${o.svc}</div><div class="hc-meta">👤 ${o.cust.nm} · ${o.cat}</div></div>
+        <div class="hc-right"><div class="hc-amt">Rs.${o.amt.toLocaleString('en-IN')}</div><div>${sbadge(o.st)}</div><div class="hc-dt">${o.due}</div></div>
+      </div>`).join('')
+    :'<div class="empty"><div class="empty-ic">📋</div><div class="empty-t">Nothing here</div></div>';
+}
+function filterHist(f,el){document.querySelectorAll('#pg-history .qa-chip').forEach(c=>c.classList.remove('qa-on'));el.classList.add('qa-on');renderHist(f)}
+
+function openNotifs(){
+  const u=NOTIFS.filter(n=>n.unread).length;
+  document.getElementById('nd-unread-lbl').textContent=u>0?`${u} unread`:'All caught up';
+  document.getElementById('notif-list').innerHTML=NOTIFS.map((n,i)=>`
+    <div class="notif-item ${n.unread?'unread':''}" style="animation-delay:${i*.05}s">
+      <div class="ni-ic ${n.type==='new-order'?'ni-new-order':n.type==='urgent'?'ni-urgent':'ni-done'}">${n.ic}</div>
+      <div class="ni-txt">
+        <div class="ni-title">${n.title}</div>
+        <div class="ni-body">${n.body.replace(/\n/g,'<br/>')}</div>
+        <div class="ni-time">${n.time}</div>
+        ${n.orderId?`<div class="ni-act-row">
+          <button class="ni-act pri" onclick="closeNotifs();setTimeout(()=>openDetail('${n.orderId}'),200)">View</button>
+          ${n.type==='new-order'?`<button class="ni-act sec" onclick="acceptOrder('${n.orderId}');this.closest('.notif-item').style.opacity='.4'">Accept</button>`:''}
+        </div>`:''}
+      </div>
+    </div>${i<NOTIFS.length-1?'<div class="notif-divider"></div>':''}`).join('');
+  document.getElementById('notif-bg').classList.add('in');
+  document.getElementById('notif-btn').classList.add('ring');
+  setTimeout(()=>document.getElementById('notif-btn').classList.remove('ring'),600);
+}
+function closeNotifs(){NOTIFS.forEach(n=>n.unread=false);updateNotifCount();document.getElementById('notif-bg').classList.remove('in')}
+function closeNotifsCheck(e){if(e.target===document.getElementById('notif-bg'))closeNotifs()}
+function clearNotifs(){NOTIFS.forEach(n=>n.unread=false);document.getElementById('notif-list').innerHTML='<div class="empty" style="padding:40px 20px"><div class="empty-ic">🔔</div><div class="empty-t">All clear!</div></div>';updateNotifCount();toast('🧹 Cleared');setTimeout(closeNotifs,800)}
+function updateNotifCount(){
+  const u=NOTIFS.filter(n=>n.unread).length;
+  const el=document.getElementById('notif-count');
+  el.textContent=u;el.style.display=u?'flex':'none';
+}
+function updateBadges(){
+  const nc=ORDERS.filter(o=>o.st==='new').length,ac=ORDERS.filter(o=>o.st==='active').length;
+  const nb=document.getElementById('new-badge'),ab=document.getElementById('active-badge');
+  nb.textContent=nc;nb.style.display=nc?'flex':'none';
+  ab.textContent=ac;ab.style.display=ac?'flex':'none';
+  updateNotifCount();
+}
+function toggleDuty(){
+  DUTY=!DUTY;
+  document.getElementById('duty-btn').className='tb-status '+(DUTY?'on':'off');
+  document.getElementById('duty-dot').className='tb-dot '+(DUTY?'pulse':'');
+  document.getElementById('duty-lbl').textContent=DUTY?'On Duty':'Off Duty';
+  toast(DUTY?'✅ You are now On Duty':'⛔ You are now Off Duty');
+}
+function startTimer(o,suffix){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    const ms=o.dueMs-Date.now(),el=document.getElementById('timer-'+suffix);
+    if(!el){clearInterval(timerInterval);return}
+    if(ms<=0){el.textContent='OVERDUE';clearInterval(timerInterval);return}
+    const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);
+    el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+function sbadge(st){
+  if(st==='new')return'<span class="sbadge sb-new"><span class="sd"></span>New</span>';
+  if(st==='active')return'<span class="sbadge sb-progress"><span class="sd pulse"></span>In Progress</span>';
+  if(st==='done')return'<span class="sbadge sb-done">✓ Done</span>';
+  return'<span class="sbadge sb-cancel">Cancelled</span>';
+}
+function callCust(ph){toast('📞 Calling '+ph+'…');setTimeout(()=>window.location.href='tel:'+ph.replace(/\s/g,''),600)}
+function openMap(addr){toast('🗺 Opening navigation…');setTimeout(()=>window.open('https://maps.google.com/?q='+addr,'_blank'),600)}
+function toast(msg){const c=document.getElementById('toasts'),el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),240)},2800)}
+
+/* ══════════════════════════════════════
+   SIMULATE INCOMING ORDER
+   — triggers the fullscreen arrival screen
+   — fires a real native push notification
+     (shows in OS notification tray even
+      if browser tab is in background)
+══════════════════════════════════════ */
+function simulateIncoming(){
+  const newOrder={
+    id:'STH-8842',em:'🧵',svc:'Embroidery Work',cat:'Tailoring',st:'new',
+    cust:{nm:'Sunita Devi',ph:'+91 98765 33333',addr:'Plot 9, Maurya Lok, Exhibition Road',landmark:'Near Patna High Court'},
+    amt:449,pickup:'13 Mar, 6:00 PM',due:'16 Mar, 5:00 PM',qty:1,
+    notes:'Gold thread work on kurta collar. Refer to photo on WhatsApp.',
+    urgent:false,dueMs:Date.now()+72*3600*1000
+  };
+  ORDERS.unshift(newOrder);
+  NOTIFS.unshift({id:'n5',type:'new-order',ic:'📥',title:'New Order — STH-8842',
+    body:'Sunita Devi · Embroidery Work · Rs.449\nPickup: Today 6:00 PM',
+    time:'Just now',unread:true,orderId:'STH-8842'});
+  updateBadges();renderTab(ACTIVE_TAB);
+
+  /* Flash screen */
+  document.getElementById('incoming-overlay').classList.add('flash');
+  setTimeout(()=>document.getElementById('incoming-overlay').classList.remove('flash'),3600);
+
+  /* Shake bell */
+  document.getElementById('notif-btn').classList.add('ring');
+  setTimeout(()=>document.getElementById('notif-btn').classList.remove('ring'),600);
+
+  /* Show the FULLSCREEN ARRIVAL SCREEN */
+  showOrderArrival(newOrder);
+
+  /* ALSO fire a real native OS notification
+     (this works even when the app tab is in background) */
+  showNativeNotif(newOrder);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderHome();updateBadges();
+
+  /* Service Worker + Push permission */
+  registerServiceWorker();
+
+  /* Swipe-down to close notif drawer */
+  let ty0=0;
+  document.getElementById('notif-drawer').addEventListener('touchstart',e=>ty0=e.touches[0].clientY,{passive:true});
+  document.getElementById('notif-drawer').addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-ty0>60)closeNotifs()});
+
+  /* Swipe-right to close order detail */
+  let dx0=0;
+  document.getElementById('order-detail').addEventListener('touchstart',e=>dx0=e.touches[0].clientX,{passive:true});
+  document.getElementById('order-detail').addEventListener('touchend',e=>{if(e.changedTouches[0].clientX-dx0>80)closeDetail()});
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      if(document.getElementById('order-arrival').classList.contains('in'))hideOrderArrival();
+      else closeDetail();
     }
+  });
 
-    // Send the data to Formspree
-    try {
-        const response = await fetch(form.action, {
-            method: 'POST',
-            body: data,
-            headers: { 'Accept': 'application/json' }
-        });
-
-        if (response.ok) {
-            // Success State
-            btn.style.background = '#4ade80';
-            btn.innerHTML = '<span>TRANSMITTED</span> <i class="fa-solid fa-check"></i>';
-            status.classList.remove('hidden');
-            status.style.color = '#4ade80';
-            status.innerText = "Success! Your inquiry has been received at info@1nestep.in";
-            
-            if (typeof log === "function") log("SUCCESS: Data packet received by central node.");
-            form.reset();
-        } else {
-            throw new Error();
-        }
-    } catch (error) {
-        // Error State
-        btn.style.background = '#ff4a4a';
-        btn.innerHTML = '<span>FAILED</span>';
-        status.classList.remove('hidden');
-        status.style.color = '#ff4a4a';
-        status.innerText = "Oops! Communication error. Please try again.";
-        if (typeof log === "function") log("ERROR: Uplink interrupted. Retransmit manual.");
-    }
-
-    // Reset button after 4 seconds
-    setTimeout(() => {
-        btn.disabled = false;
-        btn.style.background = '';
-        btn.innerHTML = '<span>Send Message</span> <i class="fa-solid fa-paper-plane"></i>';
-        status.classList.add('hidden');
-    }, 4000);
+  /* Demo: show arrival screen after 5s */
+  setTimeout(simulateIncoming,5000);
 });
 </script>
-<script src="ones-nav.js"></script>
 </body>
 </html>
